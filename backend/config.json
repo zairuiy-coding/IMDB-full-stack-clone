@@ -1,0 +1,14 @@
+// TODO: fill out the following:
+
+// {
+//     "rds_host": "database-1.csh5wsuqfvem.us-east-2.rds.amazonaws.com",
+//     "rds_port": "3306",
+//     "rds_user": "admin",
+//     "rds_password": "cis550hw2",
+//     "rds_db": "SWIFTIFY",
+//     "server_host": "localhost",
+//     "server_port": "8080"
+//   }
+  
+  
+  
