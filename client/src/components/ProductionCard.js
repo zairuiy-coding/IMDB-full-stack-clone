@@ -19,6 +19,7 @@ function ProductionCard({ genre, type }) {
         // Fetch request to get the song of the day. Fetch runs asynchronously.
         // The .then() method is called when the fetch request is complete
         // and proceeds to convert the result to a JSON which is finally placed in state.
+        setTop20([]);
         fetch(`http://${config.server_host}:${config.server_port}/top20ForGenre/${genre}/${type}`)
             .then(res => res.json())
             .then(resJson => setTop20(resJson));
@@ -45,17 +46,19 @@ function ProductionCard({ genre, type }) {
                                 : theme.palette.grey[700],
                     }}
                 />
-                <CardContent>
+                <CardContent sx = {{height: 280, display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'}}>
                     <Box
                         sx={{
                             display: 'flex',
                             justifyContent: 'center',
-                            alignItems: 'baseline',
+                            alignItems: 'center',
                             mb: 2,
                         }}
                     >
                     </Box>
-                    <ol>
+                    <ol style={{left: '50%', top: '50%',}}>
                         {top20.map((d, index) => (
                             index < 5 &&
                             <Typography

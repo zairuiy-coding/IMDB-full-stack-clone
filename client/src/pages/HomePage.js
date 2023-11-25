@@ -38,6 +38,7 @@ export default function HomePage({ type }) {
         // Fetch request to get the song of the day. Fetch runs asynchronously.
         // The .then() method is called when the fetch request is complete
         // and proceeds to convert the result to a JSON which is finally placed in state.
+        setTop250([]);
         fetch(`http://${config.server_host}:${config.server_port}/topProduction/${type}`)
             .then(res => res.json())
             .then(resJson => setTop250(resJson));

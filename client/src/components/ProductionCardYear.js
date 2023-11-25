@@ -19,6 +19,7 @@ function ProductionCardYear({ year, type }) {
         // Fetch request to get the song of the day. Fetch runs asynchronously.
         // The .then() method is called when the fetch request is complete
         // and proceeds to convert the result to a JSON which is finally placed in state.
+        setTop20([]);
         fetch(`http://${config.server_host}:${config.server_port}/top20ForYear/${year}/${type}`)
             .then(res => res.json())
             .then(resJson => setTop20(resJson));
@@ -45,7 +46,9 @@ function ProductionCardYear({ year, type }) {
                                 : theme.palette.grey[700],
                     }}
                 />
-                <CardContent>
+                <CardContent sx = {{height: 280, display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'}}>
                     <Box
                         sx={{
                             display: 'flex',
