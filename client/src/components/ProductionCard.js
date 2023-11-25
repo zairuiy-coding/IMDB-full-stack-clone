@@ -53,12 +53,12 @@ function ProductionCard({ genre, type }) {
                         sx={{
                             display: 'flex',
                             justifyContent: 'center',
-                            alignItems: 'center',
+                            alignItems: 'baseline',
                             mb: 2,
                         }}
                     >
                     </Box>
-                    <ol style={{left: '50%', top: '50%',}}>
+                    <ol>
                         {top20.map((d, index) => (
                             index < 5 &&
                             <Typography
