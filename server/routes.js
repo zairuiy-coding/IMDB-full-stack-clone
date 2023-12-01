@@ -115,6 +115,31 @@ const top20ForYear = async function(req, res) {
 }
 
 
+/*********************
+ * PRODUCT INFO PAGE *
+ *********************/
+
+const production = async function(req, res) {
+    connection.query(`
+    SELECT P.primaryTitle, P.isAdult, P.startYear, P.runtimeMinutes, P.averageRating, G.genre,
+    PS.prinamryName AS personName, PC.category AS role
+    FROM Production P
+    JOIN Genres G ON P.titleId = G.titleId
+    JOIN Principal PC ON P.titleId = PC.titleId
+    JOIN Person PS on PC.personId = PS.personId
+    WHERE P.titleId = ${req.params.titleId}
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(
+        data
+      );
+    }
+  });
+}
+
 
 
 
@@ -123,4 +148,5 @@ module.exports = {
   genre,
   top20ForGenre,
   top20ForYear,
+  production
 }
