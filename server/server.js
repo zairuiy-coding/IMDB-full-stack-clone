@@ -15,7 +15,7 @@ app.get('/genre/:titleId', routes.genre);
 app.get('/top20ForGenre/:specificGenre/:productionType', routes.top20ForGenre);
 app.get('/top20ForYear/:year/:productionType', routes.top20ForYear);
 app.get('/productionInfo/:titleId', routes.production);
-
+app.get('/search_productions/:type', routes.search_productions);
 
 
 app.listen(config.server_port, () => {

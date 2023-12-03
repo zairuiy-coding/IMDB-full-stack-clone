@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
-import SongCard from '../components/SongCard';
 import { formatDuration, formatReleaseDate } from '../helpers/formatter';
 const config = require('../config.json');
 
@@ -10,9 +9,6 @@ export default function ProductionInfoPage() {
   const { titleId } = useParams();
 
   const [productionData, setProductionData] = useState([{}]); // default should actually just be [], but empty object element added to avoid error in template code
-
-
-  const [selectedTitleId, setSelectedTitleId] = useState(null);
 
   useEffect(() => {
     fetch(`http://${config.server_host}:${config.server_port}/productionInfo/${titleId}`)
@@ -22,7 +18,6 @@ export default function ProductionInfoPage() {
 
   return (
     <Container>
-      {selectedTitleId && <SongCard songId={selectedTitleId} handleClose={() => setSelectedTitleId(null)} />}
       <Stack direction='row' justify='center'>
         <img
           key={productionData.album_id}

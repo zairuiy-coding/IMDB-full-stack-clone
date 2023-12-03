@@ -38,7 +38,7 @@ const topProduction = async function(req, res) {
       );
     }
   });
-}
+};
 
 const genre = async function(req, res) {
     connection.query(`
@@ -55,7 +55,7 @@ const genre = async function(req, res) {
       );
     }
   });
-}
+};
 
 
 const top20ForGenre = async function(req, res) {
@@ -87,7 +87,7 @@ const top20ForGenre = async function(req, res) {
       );
     }
   });
-}
+};
 
 const top20ForYear = async function(req, res) {
     const voteNumThresh = req.params.productionType !== 'Short' ? 10000 : 1000;
@@ -112,7 +112,7 @@ const top20ForYear = async function(req, res) {
       );
     }
   });
-}
+};
 
 
 /*********************
@@ -138,9 +138,48 @@ const production = async function(req, res) {
       );
     }
   });
-}
+};
 
 
+/**************************
+ * PRODUCTION SEARCH PAGE *
+ **************************/
+
+const search_productions = async function(req, res) {
+  const primaryTitle = req.query.primaryTitle ?? '';
+  const isAdult = req.query.isAdult === 'true' ? 1 : 0;
+  const startYearLow = req.query.startYearLow ?? 0;
+  const startYearHigh = req.query.startYearHigh ?? 2050;
+  const runtimeMinutesLow = req.query.runtimeMinutesLow ?? 0;
+  const runtimeMinutesHigh = req.query.runtimeMinutesHigh ?? 55000;
+
+  const genre = req.query.genre;
+  const genreQuery = (genre === 'All' || (!genre)) ? '' : `AND g.genre = '${genre}'`;
+
+  const averageRatingLow = req.query.averageRatingLow ?? 0.0;
+  const averageRatingHigh = req.query.averageRatingHigh ?? 10.0;
+  const numVotesLow = req.query.numVotesLow ?? 0;
+  const numVotesHigh = req.query.numVotesHigh ?? 3000000;
+
+  connection.query(`
+    SELECT p.titleId, p.primaryTitle, p.startYear, p.runtimeMinutes, r.averageRating
+    FROM ${req.params.type} t JOIN Production p ON t.titleId = p.titleId JOIN Genres g ON t.titleId = g.titleId
+      JOIN Rating r ON t.titleId = r.titleId
+    WHERE p.primaryTitle LIKE '%${primaryTitle}%' AND p.isAdult = ${isAdult} AND p.startYear >= ${startYearLow}
+      AND p.startYear <= ${startYearHigh} AND p.runtimeMinutes >= ${runtimeMinutesLow} AND p.runtimeMinutes <= ${runtimeMinutesHigh}
+      AND r.averageRating >= ${averageRatingLow} AND r.averageRating <= ${averageRatingHigh} AND r.numVotes >= ${numVotesLow}
+      AND r.numVotes <= ${numVotesHigh} ${genreQuery}
+    GROUP BY p.titleId
+    ORDER BY p.primaryTitle
+  `, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.json([]);
+    } else {
+      res.json(data);
+    }
+  });
+};
 
 
 module.exports = {
@@ -148,5 +187,6 @@ module.exports = {
   genre,
   top20ForGenre,
   top20ForYear,
-  production
-}
+  production,
+  search_productions
+};
