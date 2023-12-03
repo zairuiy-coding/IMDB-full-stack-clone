@@ -140,6 +140,30 @@ const production = async function(req, res) {
   });
 }
 
+/*********************
+ * PERSONINFO PAGE *
+ *********************/
+
+const person = async function(req, res) {
+  connection.query(`
+  SELECT PS.primaryName, PS.birthyear, PS.deathyear, PP.profession, P.primaryTitle 
+  FROM Person PS
+  JOIN PrimaryProfessions PP on PS.personId = PP.personId
+  JOIN KnowForTitles KFT on PS.personId = KFT.personId
+  JOIN Production P on KFT.titleId = P.titleId
+  WHERE PS.personId = ${req.params.personId}
+`, (err, data) => {
+  if (err || data.length === 0) {
+    console.log(err);
+    res.json({});
+  } else {
+    res.json(
+      data
+    );
+  }
+});
+}
+
 
 
 
