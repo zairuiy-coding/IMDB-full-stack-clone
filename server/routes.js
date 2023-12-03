@@ -16,6 +16,27 @@ connection.connect((err) => err && console.log(err));
  * WARM UP ROUTES *
  ******************/
 
+const random = async function(req, res) {
+  const isAdult = req.query.isAdult === 'true' ? 1 : 0;
+  connection.query(`
+    SELECT *
+    FROM Production
+    WHERE isAdult <= ${isAdult}
+    ORDER BY RAND()
+    LIMIT 1
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json({
+        titleId: data[0].titleId, primaryTitle: data[0].primaryTitle
+      });
+    }
+  });
+}
+
+
 const topProduction = async function(req, res) {
     connection.query(`
     SELECT P.titleId AS titleId, P.primaryTitle AS primaryTitle, P.isAdult AS isAdult,
