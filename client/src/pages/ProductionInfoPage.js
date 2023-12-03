@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
-import SongCard from '../components/SongCard';
+import ProductionCard from '../components/ProductionCard';
 import { formatDuration, formatReleaseDate } from '../helpers/formatter';
 const config = require('../config.json');
 
@@ -22,7 +22,7 @@ export default function ProductionInfoPage() {
 
   return (
     <Container>
-      {selectedTitleId && <SongCard songId={selectedTitleId} handleClose={() => setSelectedTitleId(null)} />}
+      {selectedTitleId && <ProductionCard songId={selectedTitleId} handleClose={() => setSelectedTitleId(null)} />}
       <Stack direction='row' justify='center'>
         <img
           key={productionData.album_id}
