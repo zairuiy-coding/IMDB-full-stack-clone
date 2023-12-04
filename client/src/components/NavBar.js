@@ -40,6 +40,8 @@ export default function NavBar() {
           <NavText href='/movie' text='MOVIES' />
           <NavText href='/short' text='SHORTS' />
           <NavText href='/TVSeries' text='TVSERIES' />
+          <NavText href='/search_productions' text='SEARCH PRODUCTIONS' />
+          <NavText href='/search_people' text='SEARCH PEOPLE' />
         </Toolbar>
       </Container>
     </AppBar>

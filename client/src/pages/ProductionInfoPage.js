@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+
 import { Container, Stack } from '@mui/material';
 const config = require('../config.json');
 
@@ -9,7 +10,7 @@ export default function ProductionInfoPage() {
   const [productionData, setProductionData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -21,19 +22,7 @@ export default function ProductionInfoPage() {
       .finally(() => setLoading(false));
   }, [titleId]);
 
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    fetch(`http://${config.server_host}:${config.server_port}/productionInfo/${titleId}`)
-      .then(res => res.json())
-      .then(resJson => setProductionData(resJson))
-      .catch(error => setError(error))
-      .finally(() => setLoading(false));
-  }, [titleId]);
-
-//   console.log('productionData: ', productionData);
-
+  // console.log('productionData: ', productionData);
 
   return (
     <Container>
@@ -71,9 +60,8 @@ export default function ProductionInfoPage() {
               View Production Card
             </Link> */}
           </div>
-
         </Stack>
       )}
     </Container>
   );
-}
+};
