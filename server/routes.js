@@ -259,11 +259,14 @@ const similarProductions = async function(req, res) {
 
 
 module.exports = {
+  random,
   topProduction,
   genre,
   top20ForGenre,
   top20ForYear,
-  production
+  production,
+  person,
+  similarProductions
 }
 
 

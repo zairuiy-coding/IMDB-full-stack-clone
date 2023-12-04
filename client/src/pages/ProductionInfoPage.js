@@ -21,7 +21,18 @@ export default function ProductionInfoPage() {
       .finally(() => setLoading(false));
   }, [titleId]);
 
-  console.log('productionData: ', productionData);
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+
+    fetch(`http://${config.server_host}:${config.server_port}/productionInfo/${titleId}`)
+      .then(res => res.json())
+      .then(resJson => setProductionData(resJson))
+      .catch(error => setError(error))
+      .finally(() => setLoading(false));
+  }, [titleId]);
+
+//   console.log('productionData: ', productionData);
 
 
   return (
@@ -52,6 +63,8 @@ export default function ProductionInfoPage() {
                     </Link> */}
                 </p>
             ))}
+            <h2>Similar Product Recommendation:</h2>
+
 
             {/* Add more details as needed */}
             {/* <Link onClick={() => setSelectedTitleId(productionData[0].titleId)}>
