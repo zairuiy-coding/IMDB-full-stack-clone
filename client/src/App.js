@@ -37,9 +37,6 @@ export default function App() {
           <Route path='/search_productions/Shorts' element={<ProductionSearchPage type={'Short'}/>} />
           <Route path='/search_productions/TV Series' element={<ProductionSearchPage type={'TVSeries'}/>} />
           <Route path='/production_info/:titleId' element={<ProductionInfoPage />} />
-          /*****************************************************************************
-           * <Route path="/ProductionInfo/:titleId" element={<ProductionInfoPage />}/> *
-           *****************************************************************************/
           <Route path='/search_people' element={<PersonSearchPage />} />
           <Route path='/person_info/:personId' element={<PersonInfoPage />} />
         </Routes>

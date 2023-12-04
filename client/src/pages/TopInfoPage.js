@@ -27,7 +27,7 @@ export default function TopInfoPage() {
                     style={{ background: 'white', borderRadius: '16px', border: '2px solid #000', display:'flex'}}
                 >
                     <div style={{ width:'50%'}}>
-                    <Link to={`/ProductionInfo/${prod.titleId}`} style={{ textDecoration: 'underline', color: 'inherit' }}>
+                    <Link to={`/production_info/${prod.titleId}`} style={{ textDecoration: 'underline', color: 'inherit' }}>
                         <h3>Title: {prod.primaryTitle}</h3>
                     </Link>
                         <h3>Year: {prod.startYear}</h3>
