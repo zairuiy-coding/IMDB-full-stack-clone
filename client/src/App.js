@@ -6,6 +6,7 @@ import { createTheme } from "@mui/material/styles";
 import NavBar from './components/NavBar';
 import HomePage from './pages/HomePage';
 import TopInfoPage from "./pages/TopInfoPage";
+import ProductionInfoPage from "./pages/ProductionInfoPage";
 
 // createTheme enables you to customize the look and feel of your app past the default
 // in this case, we only change the color scheme
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/short" element={<HomePage type={'Short'} />} />
           <Route path="/TVSeries" element={<HomePage type={'TVSeries'} />} />
           <Route path="/TopInfoPage" element={<TopInfoPage />}/>
+          <Route path="/ProductionInfo/:titleId" element={<ProductionInfoPage />}/>
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
