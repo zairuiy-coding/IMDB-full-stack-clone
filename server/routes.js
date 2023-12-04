@@ -114,7 +114,7 @@ const top20ForYear = async function(req, res) {
     const voteNumThresh = req.params.productionType !== 'Short' ? 10000 : 1000;
     connection.query(`
     SELECT P.titleId AS titleId, P.primaryTitle AS primaryTitle, P.isAdult AS isAdult,
-     P.startYear AS startYear, R.averageRating AS averageRating
+      P.startYear AS startYear, R.averageRating AS averageRating
     FROM ${req.params.productionType} T
     JOIN Production P
     On T.titleId = P.titleId
@@ -166,23 +166,90 @@ const production = async function(req, res) {
  *********************/
 
 const person = async function(req, res) {
-  connection.query(`
-  SELECT PS.primaryName, PS.birthyear, PS.deathyear, PP.profession, P.primaryTitle 
-  FROM Person PS
-  JOIN PrimaryProfessions PP on PS.personId = PP.personId
-  JOIN KnowForTitles KFT on PS.personId = KFT.personId
-  JOIN Production P on KFT.titleId = P.titleId
-  WHERE PS.personId = ${req.params.personId}
-`, (err, data) => {
-  if (err || data.length === 0) {
-    console.log(err);
-    res.json({});
-  } else {
-    res.json(
-      data
-    );
-  }
-});
+    connection.query(`
+    SELECT PS.primaryName, PS.birthyear, PS.deathyear, PP.profession, P.primaryTitle 
+    FROM Person PS
+    JOIN PrimaryProfessions PP on PS.personId = PP.personId
+    JOIN KnowForTitles KFT on PS.personId = KFT.personId
+    JOIN Production P on KFT.titleId = P.titleId
+    WHERE PS.personId = ${req.params.personId}
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(
+        data
+      );
+    }
+  });
+}
+
+/***************************************
+ * SIMILAR PRODUCTIONS RECOMMENDATION*
+ ***************************************/
+
+const similarProductions = async function(req, res) {
+    connection.query(`
+    WITH thisGenres AS (
+      SELECT genre FROM Genres
+      WHERE titleId = ${req.params.titleId}
+    ),
+    WITH thisCrew AS(
+      SELECT DISTINCT personId FROM Principal
+      WHERE titleId = ${req.params.titleId}
+    ),
+    WITH condition0 AS(
+      SELECT titleId FROM ${req.params.productionType} T
+    ),
+    WITH condition1 AS(
+      SELECT titleId FROM genres 
+      WHERE genres IN thisGenres 
+      GROUP BY titleId
+      HAVING COUNT(genre) >= 2
+    ),
+    WITH condition2 AS(
+      SELECT titleId FROM Production
+      WHERE startYear <= ${req.params.thisYear} + 10 AND startYear >= ${req.params.thisYear} - 10
+    ),
+    WITH condition3 AS(
+      SELECT titleId FROM Principal
+      WHERE personId IN thisCrew
+      GROUP BY titleId
+      HAVING COUNT(DISTINCT personId) >= 2
+    ),
+    WITH similarIds AS(
+      (SELECT * FROM condition0) 
+      INTERSECT
+      (
+        ((SELECT * FROM condition1) 
+            INTERSECT
+        (SELECT * FROM condition2)) 
+            UNION
+        ((SELECT * FROM condition1) 
+            INTERSECT
+        (SELECT * FROM condition3)) 
+            UNION
+        ((SELECT * FROM condition2)
+            INTERSECT
+        (SELECT * FROM condition3))
+        ) 
+      ),
+      SELECT P.titleId, P.primaryTitle, P.isAdult, P.startYear, P.averageRating 
+      FROM Production P
+      JOIN similarIds S
+      On P.titleId = S.titleId
+      ORDER BY P.averageRating DESC 
+      LIMIT 10
+    `, (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+      res.json(data);
+      }
+    }
+  );
 }
 
 
@@ -195,3 +262,12 @@ module.exports = {
   top20ForYear,
   production
 }
+
+
+
+
+
+
+
+
+
