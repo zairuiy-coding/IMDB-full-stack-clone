@@ -33,7 +33,7 @@ export default function App() {
           <Route path="/short" element={<HomePage type={'Short'} />} />
           <Route path="/TVSeries" element={<HomePage type={'TVSeries'} />} />
           <Route path="/TopInfoPage" element={<TopInfoPage />}/>
-          <Route path="/ProductionInfoPage" element={<ProductionInfoPage />}/>
+          <Route path="/ProductionInfo/:titleId" element={<ProductionInfoPage />}/>
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
