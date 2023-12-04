@@ -12,9 +12,9 @@ const connection = mysql.createConnection({
 });
 connection.connect((err) => err && console.log(err));
 
-/******************
- * WARM UP ROUTES *
- ******************/
+/****************
+ * RANDOM ROUTE *
+ ****************/
 
 const random = async function(req, res) { //isAdult is boolean in original data
   const isAdult = req.query.isAdult === true ? 1 : 0;
@@ -36,6 +36,9 @@ const random = async function(req, res) { //isAdult is boolean in original data
   });
 }
 
+/************************
+ * TOP PRODUCTION PAGE  *
+ ************************/
 
 const topProduction = async function(req, res) {
     connection.query(`
@@ -65,8 +68,10 @@ const genre = async function(req, res) {
     connection.query(`
     SELECT G.genre AS genre
     FROM Genres G
-    WHERE titleId = ${req.params.titleId}
-  `, (err, data) => {
+    WHERE titleId = ?
+  `, 
+    [req.params.titleId],
+    (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
       res.json({});
@@ -173,10 +178,12 @@ const person = async function(req, res) {
     SELECT PS.primaryName, PS.birthyear, PS.deathyear, PP.profession, P.primaryTitle 
     FROM Person PS
     JOIN PrimaryProfessions PP on PS.personId = PP.personId
-    JOIN KnowForTitles KFT on PS.personId = KFT.personId
+    JOIN KnownForTitles KFT on PS.personId = KFT.personId
     JOIN Production P on KFT.titleId = P.titleId
-    WHERE PS.personId = ${req.params.personId}
-  `, (err, data) => {
+    WHERE PS.personId = ?
+  `, 
+  [req.params.personId],
+  (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
       res.json({});
@@ -189,81 +196,96 @@ const person = async function(req, res) {
 }
 
 /***************************************
- * SIMILAR PRODUCTIONS RECOMMENDATION*
+ * SIMILAR PRODUCTIONS RECOMMENDATION  *
  ***************************************/
 
-const similarProductions = async function(req, res) {
-    connection.query(`
-    WITH thisGenres AS (
-      SELECT genre FROM Genres
-      WHERE titleId = ${req.params.titleId}
-    ),
-    WITH thisCrew AS(
-      SELECT DISTINCT personId FROM Principal
-      WHERE titleId = ${req.params.titleId}
-    ),
-    WITH condition0 AS(
-      SELECT titleId FROM ${req.params.productionType} T
-    ),
-    WITH condition1 AS(
-      SELECT titleId FROM genres 
-      WHERE genres IN thisGenres 
-      GROUP BY titleId
-      HAVING COUNT(genre) >= 2
-    ),
-    WITH condition2 AS(
-      SELECT titleId FROM Production
-      WHERE startYear <= ${req.params.thisYear} + 10 AND startYear >= ${req.params.thisYear} - 10
-    ),
-    WITH condition3 AS(
-      SELECT titleId FROM Principal
-      WHERE personId IN thisCrew
-      GROUP BY titleId
-      HAVING COUNT(DISTINCT personId) >= 2
-    ),
-    WITH similarIds AS(
-      (SELECT * FROM condition0) 
-      INTERSECT
-      (
-        ((SELECT * FROM condition1) 
+const similarProductions = async function (req, res) {
+
+      const Query = `
+        WITH thisGenres AS (
+          SELECT genre FROM Genres
+          WHERE titleId = ?
+        ),
+        thisCrew AS (
+          SELECT DISTINCT personId FROM Principal
+          WHERE titleId = ?
+        ),
+        condition0 AS (
+          SELECT titleId FROM ? T
+        ),
+        condition1 AS (
+          SELECT titleId FROM Genres
+          WHERE genre IN (SELECT genre FROM thisGenres)
+          GROUP BY titleId
+          HAVING COUNT(genre) >= 2
+        ),
+        condition2 AS (
+          SELECT titleId FROM Production
+          WHERE startYear <= ? + 10 AND startYear >= ? - 10
+        ),
+        condition3 AS (
+          SELECT titleId FROM Principal
+          WHERE personId IN (SELECT personId FROM thisCrew)
+          GROUP BY titleId
+          HAVING COUNT(DISTINCT personId) >= 2
+        ),
+        similarIds AS (
+          (SELECT * FROM condition0)
+          INTERSECT
+          (
+            ((SELECT * FROM condition1)
             INTERSECT
-        (SELECT * FROM condition2)) 
+            (SELECT * FROM condition2))
             UNION
-        ((SELECT * FROM condition1) 
+            ((SELECT * FROM condition1)
             INTERSECT
-        (SELECT * FROM condition3)) 
+            (SELECT * FROM condition3))
             UNION
-        ((SELECT * FROM condition2)
+            ((SELECT * FROM condition2)
             INTERSECT
-        (SELECT * FROM condition3))
-        ) 
-      ),
-      SELECT P.titleId, P.primaryTitle, P.isAdult, P.startYear, P.averageRating 
-      FROM Production P
-      JOIN similarIds S
-      On P.titleId = S.titleId
-      ORDER BY P.averageRating DESC 
-      LIMIT 10
-    `, (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-      res.json(data);
-      }
-    }
-  );
-}
+            (SELECT * FROM condition3))
+          )
+        )
+        SELECT P.titleId, P.primaryTitle, P.isAdult, P.startYear, P.averageRating 
+        FROM Production P
+        JOIN similarIds S
+        ON P.titleId = S.titleId
+        ORDER BY P.averageRating DESC
+        LIMIT 10
+      `;
+  
+      const queryParams = [
+        req.params.titleId,
+        req.params.titleId,
+        req.params.productionType,
+        req.params.thisYear,
+        req.params.thisYear
+      ];
+
+      connection.query(Query, queryParams, (err, data) => {
+        if (err || data.length === 0) {
+          console.error(err);
+          res.json([]);
+        } else {
+          res.json(data);
+        }
+      });
+  
+};
+  
 
 
 
 
 module.exports = {
+  random,
   topProduction,
   genre,
   top20ForGenre,
   top20ForYear,
-  production
+  production,
+  person,
+  similarProductions
 }
 
 
