@@ -12,10 +12,6 @@ const connection = mysql.createConnection({
 });
 connection.connect((err) => err && console.log(err));
 
-/******************
- * WARM UP ROUTES *
- ******************/
-
 const topProduction = async function(req, res) {
     connection.query(`
     SELECT P.titleId AS titleId, P.primaryTitle AS primaryTitle, P.isAdult AS isAdult,
@@ -154,7 +150,7 @@ const search_productions = async function(req, res) {
   const runtimeMinutesHigh = req.query.runtimeMinutesHigh ?? 55000;
 
   const genre = req.query.genre;
-  const genreQuery = (genre === 'All' || (!genre)) ? '' : `AND g.genre = '${genre}'`;
+  const genreQuery = (genre === 'All' || (!genre)) ? '' : ` AND genre = '${genre}'`;
 
   const averageRatingLow = req.query.averageRatingLow ?? 0.0;
   const averageRatingHigh = req.query.averageRatingHigh ?? 10.0;
@@ -162,15 +158,48 @@ const search_productions = async function(req, res) {
   const numVotesHigh = req.query.numVotesHigh ?? 3000000;
 
   connection.query(`
-    SELECT p.titleId, p.primaryTitle, p.startYear, p.runtimeMinutes, r.averageRating
+    SELECT p.titleId, primaryTitle, startYear, runtimeMinutes, averageRating
     FROM ${req.params.type} t JOIN Production p ON t.titleId = p.titleId JOIN Genres g ON t.titleId = g.titleId
       JOIN Rating r ON t.titleId = r.titleId
-    WHERE p.primaryTitle LIKE '%${primaryTitle}%' AND p.isAdult = ${isAdult} AND p.startYear >= ${startYearLow}
-      AND p.startYear <= ${startYearHigh} AND p.runtimeMinutes >= ${runtimeMinutesLow} AND p.runtimeMinutes <= ${runtimeMinutesHigh}
-      AND r.averageRating >= ${averageRatingLow} AND r.averageRating <= ${averageRatingHigh} AND r.numVotes >= ${numVotesLow}
-      AND r.numVotes <= ${numVotesHigh} ${genreQuery}
-    GROUP BY p.titleId
-    ORDER BY p.primaryTitle
+    WHERE primaryTitle LIKE '%${primaryTitle}%' AND isAdult = ${isAdult} AND startYear >= ${startYearLow} AND startYear <= ${startYearHigh}
+      AND runtimeMinutes >= ${runtimeMinutesLow} AND runtimeMinutes <= ${runtimeMinutesHigh} AND averageRating >= ${averageRatingLow}
+      AND averageRating <= ${averageRatingHigh} AND numVotes >= ${numVotesLow} AND numVotes <= ${numVotesHigh}${genreQuery}
+    GROUP BY titleId, primaryTitle
+    ORDER BY primaryTitle
+  `, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.json([]);
+    } else {
+      res.json(data);
+    }
+  });
+};
+
+
+/**********************
+ * PERSON SEARCH PAGE *
+ **********************/
+
+const search_people = async function(req, res) {
+  const primaryName = req.query.primaryName ?? '';
+  const birthYearLow = req.query.birthYearLow ?? 0;
+  const birthYearHigh = req.query.birthYearHigh ?? 2023;
+  const deathYearLow = req.query.deathYearLow ?? 0;
+  const deathYearHigh = req.query.deathYearHigh ?? 2023;
+
+  const profession = req.query.profession;
+  const professionQuery = (profession === 'All' || (!profession)) ? '' : ` AND profession = '${profession}'`;
+
+  connection.query(`
+    SELECT p.*, GROUP_CONCAT(profession SEPARATOR ', ') AS professions
+    FROM Person p JOIN PrimaryProfessions pp ON p.personId = pp.personId
+    WHERE p.personId IN (SELECT p.personId
+                         FROM Person p JOIN PrimaryProfessions pp ON p.personId = pp.personId
+                         WHERE primaryName LIKE '%${primaryName}%' AND birthYear >= ${birthYearLow} AND birthYear <= ${birthYearHigh}
+                             AND deathYear >= ${deathYearLow} AND deathYear <= ${deathYearHigh}${professionQuery})
+    GROUP BY p.personId, primaryName
+    ORDER BY primaryName;
   `, (err, data) => {
     if (err) {
       console.log(err);
@@ -188,5 +217,6 @@ module.exports = {
   top20ForGenre,
   top20ForYear,
   production,
-  search_productions
+  search_productions,
+  search_people
 };

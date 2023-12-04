@@ -16,7 +16,7 @@ app.get('/top20ForGenre/:specificGenre/:productionType', routes.top20ForGenre);
 app.get('/top20ForYear/:year/:productionType', routes.top20ForYear);
 app.get('/productionInfo/:titleId', routes.production);
 app.get('/search_productions/:type', routes.search_productions);
-
+app.get('/search_people', routes.search_people);
 
 app.listen(config.server_port, () => {
   console.log(`Server running at http://${config.server_host}:${config.server_port}/`)

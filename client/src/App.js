@@ -9,6 +9,8 @@ import TopInfoPage from "./pages/TopInfoPage";
 import TypesPage from "./pages/TypesPage";
 import ProductionSearchPage from "./pages/ProductionSearchPage";
 import ProductionInfoPage from "./pages/ProductionInfoPage";
+import PersonSearchPage from "./pages/PersonSearchPage";
+import PersonInfoPage from "./pages/PersonInfoPage";
 
 export const theme = createTheme({
   palette: {
@@ -34,6 +36,8 @@ export default function App() {
           <Route path='/search_productions/Shorts' element={<ProductionSearchPage type={'Short'}/>} />
           <Route path='/search_productions/TV Series' element={<ProductionSearchPage type={'TVSeries'}/>} />
           <Route path='/production_info/:titleId' element={<ProductionInfoPage />} />
+          <Route path='/search_people' element={<PersonSearchPage />} />
+          <Route path='/person_info/:personId' element={<PersonInfoPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
