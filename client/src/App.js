@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CssBaseline, ThemeProvider } from '@mui/material'
-import { indigo, amber } from '@mui/material/colors'
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { indigo, amber } from '@mui/material/colors';
 import { createTheme } from "@mui/material/styles";
 
 import NavBar from './components/NavBar';
 import HomePage from './pages/HomePage';
 import TopInfoPage from "./pages/TopInfoPage";
+
 import TypesPage from "./pages/TypesPage";
 import ProductionSearchPage from "./pages/ProductionSearchPage";
 import ProductionInfoPage from "./pages/ProductionInfoPage";
@@ -36,10 +37,13 @@ export default function App() {
           <Route path='/search_productions/Shorts' element={<ProductionSearchPage type={'Short'}/>} />
           <Route path='/search_productions/TV Series' element={<ProductionSearchPage type={'TVSeries'}/>} />
           <Route path='/production_info/:titleId' element={<ProductionInfoPage />} />
+          /*****************************************************************************
+           * <Route path="/ProductionInfo/:titleId" element={<ProductionInfoPage />}/> *
+           *****************************************************************************/
           <Route path='/search_people' element={<PersonSearchPage />} />
           <Route path='/person_info/:personId' element={<PersonInfoPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
   );
-}
+};

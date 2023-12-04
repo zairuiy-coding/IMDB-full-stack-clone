@@ -12,6 +12,36 @@ const connection = mysql.createConnection({
 });
 connection.connect((err) => err && console.log(err));
 
+
+/****************
+ * RANDOM ROUTE *
+ ****************/
+
+const random = async function(req, res) { //isAdult is boolean in original data
+  const isAdult = req.query.isAdult === true ? 1 : 0;
+  connection.query(`
+    SELECT *
+    FROM Production
+    WHERE isAdult <= ${isAdult}
+    ORDER BY RAND()
+    LIMIT 1
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json({
+        titleId: data[0].titleId, primaryTitle: data[0].primaryTitle
+      });
+    }
+  });
+};
+
+
+/************************
+ * TOP PRODUCTION PAGE  *
+ ************************/
+
 const topProduction = async function(req, res) {
     connection.query(`
     SELECT P.titleId AS titleId, P.primaryTitle AS primaryTitle, P.isAdult AS isAdult,
@@ -40,8 +70,10 @@ const genre = async function(req, res) {
     connection.query(`
     SELECT G.genre AS genre
     FROM Genres G
-    WHERE titleId = ${req.params.titleId}
-  `, (err, data) => {
+    WHERE titleId = ?
+  `, 
+    [req.params.titleId],
+    (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
       res.json({});
@@ -52,7 +84,6 @@ const genre = async function(req, res) {
     }
   });
 };
-
 
 const top20ForGenre = async function(req, res) {
     const voteNumThresh = req.params.productionType !== 'Short' ? 10000 : 1000;
@@ -89,7 +120,7 @@ const top20ForYear = async function(req, res) {
     const voteNumThresh = req.params.productionType !== 'Short' ? 10000 : 1000;
     connection.query(`
     SELECT P.titleId AS titleId, P.primaryTitle AS primaryTitle, P.isAdult AS isAdult,
-     P.startYear AS startYear, R.averageRating AS averageRating
+      P.startYear AS startYear, R.averageRating AS averageRating
     FROM ${req.params.productionType} T
     JOIN Production P
     On T.titleId = P.titleId
@@ -117,14 +148,17 @@ const top20ForYear = async function(req, res) {
 
 const production = async function(req, res) {
     connection.query(`
-    SELECT P.primaryTitle, P.isAdult, P.startYear, P.runtimeMinutes, P.averageRating, G.genre,
-    PS.prinamryName AS personName, PC.category AS role
+    SELECT P.primaryTitle, P.isAdult, P.startYear, P.runtimeMinutes, R.averageRating, G.genre,
+    PS.primaryName AS personName, PC.category AS role
     FROM Production P
     JOIN Genres G ON P.titleId = G.titleId
     JOIN Principal PC ON P.titleId = PC.titleId
     JOIN Person PS on PC.personId = PS.personId
-    WHERE P.titleId = ${req.params.titleId}
-  `, (err, data) => {
+    JOIN Rating R on P.titleId = R.titleId
+    WHERE P.titleId = ?
+  `, 
+  [req.params.titleId],
+  (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
       res.json({});
@@ -211,12 +245,119 @@ const search_people = async function(req, res) {
 };
 
 
+/********************
+ * PERSON INFO PAGE *
+ ********************/
+
+const person = async function(req, res) {
+    connection.query(`
+    SELECT PS.primaryName, PS.birthyear, PS.deathyear, PP.profession, P.primaryTitle 
+    FROM Person PS
+    JOIN PrimaryProfessions PP on PS.personId = PP.personId
+    JOIN KnownForTitles KFT on PS.personId = KFT.personId
+    JOIN Production P on KFT.titleId = P.titleId
+    WHERE PS.personId = ?
+  `, 
+  [req.params.personId],
+  (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(
+        data
+      );
+    }
+  });
+};
+
+
+/**************************************
+ * SIMILAR PRODUCTIONS RECOMMENDATION *
+ **************************************/
+
+const similarProductions = async function (req, res) {
+      const Query = `
+        WITH thisGenres AS (
+          SELECT genre FROM Genres
+          WHERE titleId = ?
+        ),
+        thisCrew AS (
+          SELECT DISTINCT personId FROM Principal
+          WHERE titleId = ?
+        ),
+        condition0 AS (
+          SELECT titleId FROM ? T
+        ),
+        condition1 AS (
+          SELECT titleId FROM Genres
+          WHERE genre IN (SELECT genre FROM thisGenres)
+          GROUP BY titleId
+          HAVING COUNT(genre) >= 2
+        ),
+        condition2 AS (
+          SELECT titleId FROM Production
+          WHERE startYear <= ? + 10 AND startYear >= ? - 10
+        ),
+        condition3 AS (
+          SELECT titleId FROM Principal
+          WHERE personId IN (SELECT personId FROM thisCrew)
+          GROUP BY titleId
+          HAVING COUNT(DISTINCT personId) >= 2
+        ),
+        similarIds AS (
+          (SELECT * FROM condition0)
+          INTERSECT
+          (
+            ((SELECT * FROM condition1)
+            INTERSECT
+            (SELECT * FROM condition2))
+            UNION
+            ((SELECT * FROM condition1)
+            INTERSECT
+            (SELECT * FROM condition3))
+            UNION
+            ((SELECT * FROM condition2)
+            INTERSECT
+            (SELECT * FROM condition3))
+          )
+        )
+        SELECT P.titleId, P.primaryTitle, P.isAdult, P.startYear, P.averageRating 
+        FROM Production P
+        JOIN similarIds S
+        ON P.titleId = S.titleId
+        ORDER BY P.averageRating DESC
+        LIMIT 10
+      `;
+  
+      const queryParams = [
+        req.params.titleId,
+        req.params.titleId,
+        req.params.productionType,
+        req.params.thisYear,
+        req.params.thisYear
+      ];
+
+      connection.query(Query, queryParams, (err, data) => {
+        if (err || data.length === 0) {
+          console.error(err);
+          res.json([]);
+        } else {
+          res.json(data);
+        }
+      });
+};
+
+
 module.exports = {
+  random,
   topProduction,
   genre,
   top20ForGenre,
   top20ForYear,
   production,
   search_productions,
-  search_people
+  search_people,
+  person,
+  similarProductions
 };

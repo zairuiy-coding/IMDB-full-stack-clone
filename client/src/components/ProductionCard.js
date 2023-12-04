@@ -67,7 +67,9 @@ function ProductionCard({ genre, type }) {
                                 align="center"
                                 key={d.primaryTitle + ":" + d.averageRating}
                             >
-                                {d.primaryTitle + ":" + d.averageRating}
+                                <Link to={`/ProductionInfo/${d.titleId}`} style={{ textDecoration: 'none' }}>
+                                    {d.primaryTitle + ":" + d.averageRating}
+                                </Link>
                             </Typography>
                         ))}
                     </ol>
