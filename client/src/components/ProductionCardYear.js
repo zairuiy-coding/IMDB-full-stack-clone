@@ -65,10 +65,10 @@ function ProductionCardYear({ year, type }) {
                                 component="li"
                                 variant="subtitle1"
                                 align="center"
-                                key={d.primaryTitle + ":" + d.averageRating}
+                                key={d.primaryTitle + ": " + d.averageRating}
                             >
-                                <Link to={`/ProductionInfo/${d.titleId}`} style={{ textDecoration: 'none' }}>
-                                    {d.primaryTitle + ":" + d.averageRating}
+                                <Link to={`/production_info/${d.titleId}`} style={{ textDecoration: 'none' }}>
+                                    {d.primaryTitle + ": " + d.averageRating}
                                 </Link>
                             </Typography>
                         ))}
