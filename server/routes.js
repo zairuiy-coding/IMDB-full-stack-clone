@@ -16,8 +16,8 @@ connection.connect((err) => err && console.log(err));
  * WARM UP ROUTES *
  ******************/
 
-const random = async function(req, res) {
-  const isAdult = req.query.isAdult === 'true' ? 1 : 0;
+const random = async function(req, res) { //isAdult is boolean in original data
+  const isAdult = req.query.isAdult === true ? 1 : 0;
   connection.query(`
     SELECT *
     FROM Production
