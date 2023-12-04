@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Link, Stack } from '@mui/material';
-
-import ProductionCard from '../components/ProductionCard';
-import { formatDuration, formatReleaseDate } from '../helpers/formatter';
+import { Container, Stack } from '@mui/material';
 const config = require('../config.json');
 
 export default function ProductionInfoPage() {
   const { titleId } = useParams();
 
-  const [selectedTitleId, setSelectedTitleId] = useState(null);
   const [productionData, setProductionData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -36,20 +32,33 @@ export default function ProductionInfoPage() {
         <Stack direction='row' justify='center'>
           {/* Your title-specific content */}
           <div>
-            <h1 style={{ fontSize: 64 }}>{productionData.primaryTitle}</h1>
-            <h2>Start Year: {productionData.startYear}</h2>
-            <p>Rating: {productionData.averageRating}</p>
-            <p>Duration: {productionData.runtimeMinutes}</p>
-            <p>Genres: {productionData.genre}</p>
-            <p>Principals: {productionData.personName}</p>
-            <p>Roles: {productionData.role}</p>
+            <h1 style={{ fontSize: 64 }}>{productionData[0].primaryTitle}</h1>
+            <h2>Start Year: {productionData[0].startYear}</h2>
+            <p>Rating: {productionData[0].averageRating}</p>
+            <p>Duration: {productionData[0].runtimeMinutes}</p>
+            <p>Genres: {productionData[0].genre}</p>
+            <h2>Principals</h2>
+            {productionData.map((prod, index) => (
+                index < 5 &&
+                <p
+                    component="li"
+                    variant="subtitle1"
+                    // align="center"
+                    key={prod.personName + ": " + prod.role}
+                >
+                    {prod.personName + ": " + prod.role}
+                    {/* <Link to={`/PersonInfo/${prod.titleId}`} style={{ textDecoration: 'none' }}>
+                        {prod.primaryTitle + ":" + prod.averageRating}
+                    </Link> */}
+                </p>
+            ))}
+
             {/* Add more details as needed */}
-            <Link onClick={() => setSelectedTitleId(productionData.titleId)}>
+            {/* <Link onClick={() => setSelectedTitleId(productionData[0].titleId)}>
               View Production Card
-            </Link>
+            </Link> */}
           </div>
-          {/* Optionally include ProductionCard or other components based on your needs */}
-          {selectedTitleId && <ProductionCard songId={selectedTitleId} handleClose={() => setSelectedTitleId(null)} />}
+
         </Stack>
       )}
     </Container>
