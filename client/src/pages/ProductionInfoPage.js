@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Stack } from '@mui/material';
-import SimpleTable from './SimpleTable';
+import SimpleTable from '../components/SimpleTable';
 
 
 const config = require('../config.json');
 
-const ProductionInfoPage = () => {
+const ProductionInfoPage = ({ type }) => {
   const { titleId } = useParams();
 
   const [productionData, setProductionData] = useState([]);
-  const [similarProductionData, setSimilarProductionData] = useState([]);
+//   const [similarProductionData, setSimilarProductionData] = useState([]);
   const [thisYear, setThisYear] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+//   const [thisTitle, setThisTitle] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,6 +28,9 @@ const ProductionInfoPage = () => {
         const year = productionJson.length > 0 ? productionJson[0].startYear : null;
         setThisYear(year);
         setProductionData(productionJson);
+
+        // setThisTitle(productionData.length > 0 ? productionData[0].primaryTitle : null);
+        // console.log("thisTitle: ", thisTitle);
 
         // if (year !== null) {
         //   const similarRes = await fetch(`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${year}`);
@@ -43,6 +47,15 @@ const ProductionInfoPage = () => {
 
     fetchData();
   }, [titleId]);
+
+//   useEffect(() => {
+//     // Set thisTitle when productionData changes
+//     if (productionData.length > 0) {
+//       setThisTitle(productionData[0].primaryTitle);
+//     }
+//     console.log("thisTitle: ", thisTitle);
+//   }, [productionData]);
+
 
 // Define columns for the LazyTable component
 const tableColumns = [
@@ -75,8 +88,9 @@ const tableColumns = [
             ))}
             <h2>Similar Product Recommendation:</h2>
             <SimpleTable
-                route={`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${thisYear}`}
+                route={`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`}
                 columns={tableColumns}
+                filter={(simProd) => simProd.titleId !== titleId && simProd.primaryTitle !== productionData[0].primaryTitle} // Exclude the current product
             />
 
 
