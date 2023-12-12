@@ -105,7 +105,7 @@ export default function HomePage({ type }) {
                                         align="center"
                                         key={d.primaryTitle + ": " + d.averageRating}
                                     >
-                                        <Link to={`/production_info/${d.titleId}`} style={{ textDecoration: 'none' }}>
+                                        <Link to={`/production_info/${d.titleId}?type=${type}`} style={{ textDecoration: 'none' }}>
                                             {d.primaryTitle + ": " + d.averageRating}
                                         </Link>
                                     </Typography>
