@@ -278,67 +278,23 @@ const person = async function(req, res) {
 
 const similarProductions = async function (req, res) {
       const Query = `
-        WITH thisGenres AS (
-          SELECT genre FROM Genres
-          WHERE titleId = ?
-        ),
-        thisCrew AS (
-          SELECT DISTINCT personId FROM Principal
-          WHERE titleId = ?
-        ),
-        condition0 AS (
-          SELECT titleId FROM ? T
-        ),
-        condition1 AS (
-          SELECT titleId FROM Genres
-          WHERE genre IN (SELECT genre FROM thisGenres)
-          GROUP BY titleId
-          HAVING COUNT(genre) >= 2
-        ),
-        condition2 AS (
-          SELECT titleId FROM Production
-          WHERE startYear <= ? + 10 AND startYear >= ? - 10
-        ),
-        condition3 AS (
-          SELECT titleId FROM Principal
-          WHERE personId IN (SELECT personId FROM thisCrew)
-          GROUP BY titleId
-          HAVING COUNT(DISTINCT personId) >= 2
-        ),
-        similarIds AS (
-          (SELECT * FROM condition0)
-          INTERSECT
-          (
-            ((SELECT * FROM condition1)
-            INTERSECT
-            (SELECT * FROM condition2))
-            UNION
-            ((SELECT * FROM condition1)
-            INTERSECT
-            (SELECT * FROM condition3))
-            UNION
-            ((SELECT * FROM condition2)
-            INTERSECT
-            (SELECT * FROM condition3))
-          )
-        )
-        SELECT P.titleId, P.primaryTitle, P.isAdult, P.startYear, P.averageRating 
+        SELECT P.titleId, P.primaryTitle, P.isAdult, P.startYear, R.averageRating
         FROM Production P
-        JOIN similarIds S
-        ON P.titleId = S.titleId
-        ORDER BY P.averageRating DESC
+        JOIN Rating R
+        On P.titleId = R.titleId
+        JOIN ${req.params.productionType} T
+        On P.titleId = T.titleId
+        JOIN Genres G
+        On P.titleId = G.titleId
+        WHERE R.numVotes > 10000 AND genre IN (SELECT genre FROM Genres WHERE titleId = '${req.params.titleId}')
+            AND startYear <= ${req.params.thisYear} + 10 AND startYear >= ${req.params.thisYear} - 10
+        GROUP BY P.titleId, P.primaryTitle, P.isAdult, P.startYear, R.averageRating
+        HAVING COUNT(genre) >= 2
+        ORDER BY R.averageRating DESC
         LIMIT 10
       `;
   
-      const queryParams = [
-        req.params.titleId,
-        req.params.titleId,
-        req.params.productionType,
-        req.params.thisYear,
-        req.params.thisYear
-      ];
-
-      connection.query(Query, queryParams, (err, data) => {
+      connection.query(Query,  (err, data) => {
         if (err || data.length === 0) {
           console.error(err);
           res.json([]);
