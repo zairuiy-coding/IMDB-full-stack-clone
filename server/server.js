@@ -24,7 +24,7 @@ app.get('/productionInfo/:titleId', routes.production);
 app.get('/search_productions/:type', routes.search_productions);
 app.get('/search_people', routes.search_people);
 app.get('/personInfo/:personId', routes.person);
-app.get('/similarProductions/:titleId/:productionType/:thisYear', routes.similarProductions);
+app.get('/similarProductions/:titleId/:thisYear', routes.similarProductions);
 
 app.listen(config.server_port, () => {
   console.log(`Server running at http://${config.server_host}:${config.server_port}/`)

@@ -282,14 +282,11 @@ const similarProductions = async function (req, res) {
         FROM Production P
         JOIN Rating R
         On P.titleId = R.titleId
-        JOIN ${req.params.productionType} T
-        On P.titleId = T.titleId
         JOIN Genres G
         On P.titleId = G.titleId
         WHERE R.numVotes > 10000 AND genre IN (SELECT genre FROM Genres WHERE titleId = '${req.params.titleId}')
             AND startYear <= ${req.params.thisYear} + 10 AND startYear >= ${req.params.thisYear} - 10
         GROUP BY P.titleId, P.primaryTitle, P.isAdult, P.startYear, R.averageRating
-        HAVING COUNT(genre) >= 2
         ORDER BY R.averageRating DESC
         LIMIT 10
       `;
