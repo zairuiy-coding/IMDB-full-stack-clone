@@ -13,12 +13,12 @@ import Typography from '@mui/material/Typography';
 const config = require('../config.json');
 
 
-function ProductionCard({ genre, type }) {
+function ProductionCard({ genre, type, num}) {
     const [top20, setTop20] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const typeRef = useRef(type);
-
+    const backgroundImage = "linear-gradient(rgba(0, 0, 0, 0.6),rgba(0, 0, 0, 0.6)) , url(/" + (num + 2) + ".png)";
     useEffect(() => {
         // Fetch request to get the song of the day. Fetch runs asynchronously.
         // The .then() method is called when the fetch request is complete
@@ -40,25 +40,34 @@ function ProductionCard({ genre, type }) {
             sm={12}
             md={4}
         >
-            <Card>
+             <Card
+                style ={{backgroundImage: backgroundImage}}
+                sx={{
+                    maxWidth: 400,
+                    margin: 'auto',
+                    boxShadow: 3,
+                    borderRadius: 12,
+                    //bgcolor: 'background.paper',
+                }}>
                 <CardHeader
                     title={genre}
-                    titleTypographyProps={{ align: 'center' }}
+                    titleTypographyProps={{ variant: 'h5', align: 'center' }}
                     subheaderTypographyProps={{
                         align: 'center',
                     }}
                     sx={{
-                        backgroundColor: (theme) =>
-                            theme.palette.mode === 'light'
-                                ? theme.palette.grey[200]
-                                : theme.palette.grey[700],
-                    }}
+                        color: 'white',
+                        padding: 2,
+
+                      }}
                 />
                 <CardContent sx = {{height: 280, display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center'}}>
-                    {loading && <p>Loading...</p>}
-                    {error && <p>Error: {error.message}</p>}
+                    {loading && <Typography variant="subtitle1"  color="white">Loading...</Typography>}
+                    {error && <Typography variant="subtitle1" color="white">
+                                        Error: {error.message}
+                                      </Typography>}
                     <Box
                         sx={{
                             display: 'flex',
@@ -69,7 +78,7 @@ function ProductionCard({ genre, type }) {
                     >
                     </Box>
                     {!loading && !error &&
-                    <ol>
+                    <ol style={{ textDecoration: 'none', color: '#FFF'}}>
                         {top20.map((d, index) => (
                             index < 5 &&
                             <Typography
@@ -78,7 +87,7 @@ function ProductionCard({ genre, type }) {
                                 align="center"
                                 key={d.primaryTitle + ": " + d.averageRating}
                             >
-                                <Link to={`/production_info/${d.titleId}`} style={{ textDecoration: 'none' }}>
+                                <Link to={`/production_info/${d.titleId}`} style={{ textDecoration: 'none', color: '#FFF'}}>
                                     {d.primaryTitle + ": " + d.averageRating}
                                 </Link>
                             </Typography>
@@ -88,7 +97,7 @@ function ProductionCard({ genre, type }) {
                 </CardContent>
                 <CardActions>
                     <Button fullWidth>
-                    <Link to="/TopInfoPage" underline="none" state={{ data: top20 }}>
+                    <Link to="/TopInfoPage" underline="none" state={{ data: top20 }} style={{ textDecoration: 'none', color: '#FFF'}}>
                             Show more
                         </Link>
                     </Button>
