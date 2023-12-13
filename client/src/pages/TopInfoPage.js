@@ -1,6 +1,6 @@
-
 import { Box, Container } from '@mui/material';
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 
 
@@ -27,7 +27,9 @@ export default function TopInfoPage() {
                     style={{ background: 'white', borderRadius: '16px', border: '2px solid #000', display:'flex'}}
                 >
                     <div style={{ width:'50%'}}>
+                    <Link to={`/production_info/${prod.titleId}`} style={{ textDecoration: 'underline', color: 'inherit' }}>
                         <h3>Title: {prod.primaryTitle}</h3>
+                    </Link>
                         <h3>Year: {prod.startYear}</h3>
                         <h3>Rating: {prod.averageRating}</h3>
                     </div>

@@ -1,76 +1,117 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Container, Stack } from '@mui/material';
+import SimpleTable from '../components/SimpleTable';
 
-import SongCard from '../components/SongCard';
-import { formatDuration, formatReleaseDate } from '../helpers/formatter';
+
 const config = require('../config.json');
 
-export default function ProductionInfoPage() {
+const ProductionInfoPage = ({ type }) => {
   const { titleId } = useParams();
 
-  const [productionData, setProductionData] = useState([{}]); // default should actually just be [], but empty object element added to avoid error in template code
-
-
-  const [selectedTitleId, setSelectedTitleId] = useState(null);
+  const [productionData, setProductionData] = useState([]);
+//   const [similarProductionData, setSimilarProductionData] = useState([]);
+  const [thisYear, setThisYear] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+//   const [thisTitle, setThisTitle] = useState(null);
 
   useEffect(() => {
-    fetch(`http://${config.server_host}:${config.server_port}/productionInfo/${titleId}`)
-      .then(res => res.json())
-      .then(resJson => setProductionData(resJson));
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const productionRes = await fetch(`http://${config.server_host}:${config.server_port}/productionInfo/${titleId}`);
+        const productionJson = await productionRes.json();
+
+        const year = productionJson.length > 0 ? productionJson[0].startYear : null;
+        setThisYear(year);
+        setProductionData(productionJson);
+
+        // setThisTitle(productionData.length > 0 ? productionData[0].primaryTitle : null);
+        // console.log("thisTitle: ", thisTitle);
+
+        // if (year !== null) {
+        //   const similarRes = await fetch(`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${year}`);
+        //   const similarJson = await similarRes.json();
+        //   console.log('Similar Production Data:', similarJson);
+        //   setSimilarProductionData(similarJson);
+        // }
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [titleId]);
+
+//   useEffect(() => {
+//     // Set thisTitle when productionData changes
+//     if (productionData.length > 0) {
+//       setThisTitle(productionData[0].primaryTitle);
+//     }
+//     console.log("thisTitle: ", thisTitle);
+//   }, [productionData]);
+
+
+// Define columns for the LazyTable component
+const tableColumns = [
+    { field: 'primaryTitle', headerName: 'Product Title' },
+    { field: 'startYear', headerName: 'Start Year' },
+    { field: 'averageRating', headerName: 'Rating' },
+  ];
 
   return (
     <Container>
-      {selectedTitleId && <SongCard songId={selectedTitleId} handleClose={() => setSelectedTitleId(null)} />}
-      <Stack direction='row' justify='center'>
-        <img
-          key={productionData.album_id}
-          src={productionData.thumbnail_url}
-          alt={`${productionData.title} album art`}
-          style={{
-            marginTop: '40px',
-            marginRight: '40px',
-            marginBottom: '40px'
-          }}
-        />
-        <Stack>
-          <h1 style={{ fontSize: 64 }}>{productionData.title}</h1>
-          <h2>Released: {formatReleaseDate(productionData.release_date)}</h2>
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error.message}</p>}
+      {!loading && !error && productionData.length > 0 && (
+        <Stack direction='row' justify='center'>
+          <div>
+            <h1 style={{ fontSize: 64 }}>{productionData[0].primaryTitle}</h1>
+            <h2>Start Year: {productionData[0].startYear}</h2>
+            <p>Rating: {productionData[0].averageRating}</p>
+            <p>Duration: {productionData[0].runtimeMinutes}</p>
+            <p>Genres: {productionData[0].genre}</p>
+            <h2>Principals</h2>
+            {productionData.slice(0, 5).map((prod, index) => (
+              <p
+                key={prod.personName + ": " + prod.role}
+                component="li"
+                variant="subtitle1"
+              >
+                {prod.personName + ": " + prod.role}
+              </p>
+            ))}
+            <h2>Similar Product Recommendation:</h2>
+            <SimpleTable
+                route={`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`}
+                columns={tableColumns}
+                filter={(simProd) => simProd.titleId !== titleId && simProd.primaryTitle !== productionData[0].primaryTitle} // Exclude the current product
+            />
+
+
+
+            {/* {similarProductionData.slice(0, 5).map((simProd, index) => (
+              <p
+                key={simProd.personName + ": " + simProd.role}
+                component="li"
+                variant="subtitle1"
+              >
+                {"Product Title: " + simProd.primaryTitle}
+                {"Start Year: " + simProd.startYear}
+                {"Rating: " + simProd.averageRating}
+              </p>
+            ))} */}
+
+          </div>
         </Stack>
-      </Stack>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell key='#'>#</TableCell>
-              <TableCell key='Title'>Title</TableCell>
-              <TableCell key='Plays'>Plays</TableCell>
-              <TableCell key='Duration'>Duration</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {
-              // TODO (TASK 23): render the table content by mapping the songData array to <TableRow> elements
-              // Hint: the skeleton code for the very first row is provided for you. Fill out the missing information and then use a map function to render the rest of the rows.
-              // Hint: it may be useful to refer back to LazyTable.js
-              productionData.map((title) => 
-                <TableRow key={title.song_id}>
-                    <TableCell key='#'>{title.number}</TableCell>
-                    <TableCell key='Title'>
-                        <Link onClick={() => setSelectedTitleId(title.song_id)}>
-                            {title.title}
-                        </Link>
-                    </TableCell>
-                    <TableCell key='Plays'>{title.plays}</TableCell>
-                    <TableCell key='Duration'>{formatDuration(title.duration)}</TableCell>
-                </TableRow>
-              )
-              
-            }
-          </TableBody>
-        </Table>
-      </TableContainer>
+      )}
     </Container>
   );
-}
+};
+
+export default ProductionInfoPage;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -15,14 +15,21 @@ const config = require('../config.json');
 
 function ProductionCardYear({ year, type }) {
     const [top20, setTop20] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const typeRef = useRef(type);
     useEffect(() => {
         // Fetch request to get the song of the day. Fetch runs asynchronously.
         // The .then() method is called when the fetch request is complete
         // and proceeds to convert the result to a JSON which is finally placed in state.
+        setLoading(true);
         setTop20([]);
+        typeRef.current = type;
         fetch(`http://${config.server_host}:${config.server_port}/top20ForYear/${year}/${type}`)
             .then(res => res.json())
-            .then(resJson => setTop20(resJson));
+            .then(resJson => {if(typeRef.current === type)  setTop20(resJson)})
+            .catch(error => setError(error))
+            .finally(() => {if(typeRef.current === type) setLoading(false)});
 
     }, [year, type]);
     return (
@@ -49,6 +56,8 @@ function ProductionCardYear({ year, type }) {
                 <CardContent sx = {{height: 280, display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center'}}>
+                    {loading && <p>Loading...</p>}
+                    {error && <p>Error: {error.message}</p>}
                     <Box
                         sx={{
                             display: 'flex',
@@ -58,6 +67,7 @@ function ProductionCardYear({ year, type }) {
                         }}
                     >
                     </Box>
+                    {!loading && !error &&
                     <ol>
                         {top20.map((d, index) => (
                             index < 5 &&
@@ -65,12 +75,15 @@ function ProductionCardYear({ year, type }) {
                                 component="li"
                                 variant="subtitle1"
                                 align="center"
-                                key={d.primaryTitle + ":" + d.averageRating}
+                                key={d.primaryTitle + ": " + d.averageRating}
                             >
-                                {d.primaryTitle + ":" + d.averageRating}
+                                <Link to={`/production_info/${d.titleId}`} style={{ textDecoration: 'none' }}>
+                                    {d.primaryTitle + ": " + d.averageRating}
+                                </Link>
                             </Typography>
                         ))}
                     </ol>
+                    }
                 </CardContent>
                 <CardActions>
                     <Button fullWidth>

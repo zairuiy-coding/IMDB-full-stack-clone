@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef} from 'react';
 import { Container } from '@mui/material';
 import { Link } from "react-router-dom";
 import * as React from 'react';
@@ -29,6 +29,11 @@ export default function HomePage({ type }) {
         Short: 'Shorts',
         TVSeries: 'TVSeries',
     }
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const typeRef = useRef(type);
+    //window.location.reload(false);
+    //const typeMemo = useMemo(() => type, [type]);
     // The useEffect hook by default runs the provided callback after every render
     // The second (optional) argument, [], is the dependency array which signals
     // to the hook to only run the provided callback if the value of the dependency array
@@ -38,10 +43,15 @@ export default function HomePage({ type }) {
         // Fetch request to get the song of the day. Fetch runs asynchronously.
         // The .then() method is called when the fetch request is complete
         // and proceeds to convert the result to a JSON which is finally placed in state.
+        setLoading(true);
         setTop250([]);
+        //window.location.reload(false);
+        typeRef.current = type;
         fetch(`http://${config.server_host}:${config.server_port}/topProduction/${type}`)
             .then(res => res.json())
-            .then(resJson => setTop250(resJson));
+            .then(resJson => {if(typeRef.current === type)  setTop250(resJson)})
+            .catch(error => setError(error))
+            .finally(() => {if(typeRef.current === type) setLoading(false)});
 
     }, [type]);
 
@@ -71,7 +81,11 @@ export default function HomePage({ type }) {
                                         : theme.palette.grey[700],
                             }}
                         />
-                        <CardContent>
+                        <CardContent sx = {{height: 280, display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'}}>
+                            {loading && <p>Loading...</p>}
+                            {error && <p>Error: {error.message}</p>}
                             <Box
                                 sx={{
                                     display: 'flex',
@@ -81,6 +95,7 @@ export default function HomePage({ type }) {
                                 }}
                             >
                             </Box>
+                            {!loading && !error &&
                             <ol>
                                 {top250.map((d, index) => (
                                     index < 5 &&
@@ -88,12 +103,15 @@ export default function HomePage({ type }) {
                                         component="li"
                                         variant="subtitle1"
                                         align="center"
-                                        key={d.primaryTitle + ":" + d.averageRating}
+                                        key={d.primaryTitle + ": " + d.averageRating}
                                     >
-                                        {d.primaryTitle + ":" + d.averageRating}
+                                        <Link to={`/production_info/${d.titleId}?type=${type}`} style={{ textDecoration: 'none' }}>
+                                            {d.primaryTitle + ": " + d.averageRating}
+                                        </Link>
                                     </Typography>
                                 ))}
                             </ol>
+                            }
                         </CardContent>
                         <CardActions>
                             <Button fullWidth>

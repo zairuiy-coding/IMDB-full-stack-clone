@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
-import SongCard from '../components/SongCard';
 import { formatDuration, formatReleaseDate } from '../helpers/formatter';
 const config = require('../config.json');
 
-export default function AlbumInfoPage() {
+export default function PersonInfoPage() {
   const { album_id } = useParams();
 
   const [songData, setSongData] = useState([{}]); // default should actually just be [], but empty object element added to avoid error in template code
   const [albumData, setAlbumData] = useState([]);
-
-  const [selectedSongId, setSelectedSongId] = useState(null);
 
   useEffect(() => {
     fetch(`http://${config.server_host}:${config.server_port}/album/${album_id}`)
@@ -26,7 +23,6 @@ export default function AlbumInfoPage() {
 
   return (
     <Container>
-      {selectedSongId && <SongCard songId={selectedSongId} handleClose={() => setSelectedSongId(null)} />}
       <Stack direction='row' justify='center'>
         <img
           key={albumData.album_id}
@@ -61,16 +57,11 @@ export default function AlbumInfoPage() {
               songData.map((song) => 
                 <TableRow key={song.song_id}>
                     <TableCell key='#'>{song.number}</TableCell>
-                    <TableCell key='Title'>
-                        <Link onClick={() => setSelectedSongId(song.song_id)}>
-                            {song.title}
-                        </Link>
-                    </TableCell>
+                    <TableCell key='Title'>{song.title}</TableCell>
                     <TableCell key='Plays'>{song.plays}</TableCell>
                     <TableCell key='Duration'>{formatDuration(song.duration)}</TableCell>
                 </TableRow>
               )
-              
             }
           </TableBody>
         </Table>
