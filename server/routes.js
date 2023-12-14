@@ -149,7 +149,7 @@ const top20ForYear = async function(req, res) {
 const production = async function(req, res) {
     connection.query(`
     SELECT P.primaryTitle, P.isAdult, P.startYear, P.runtimeMinutes, R.averageRating, G.genre,
-    PS.primaryName AS personName, PC.category AS role
+    PS.personId AS personId, PS.primaryName AS personName, PC.category AS role
     FROM Production P
     JOIN Genres G ON P.titleId = G.titleId
     JOIN Principal PC ON P.titleId = PC.titleId
@@ -251,7 +251,7 @@ const search_people = async function(req, res) {
 
 const person = async function(req, res) {
     connection.query(`
-    SELECT PS.primaryName, PS.birthyear, PS.deathyear, PP.profession, P.primaryTitle 
+    SELECT PS.primaryName, PS.birthyear, PS.deathyear, PP.profession, P.primaryTitle, P.titleId
     FROM Person PS
     JOIN PrimaryProfessions PP on PS.personId = PP.personId
     JOIN KnownForTitles KFT on PS.personId = KFT.personId
