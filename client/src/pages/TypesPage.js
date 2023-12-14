@@ -9,7 +9,17 @@ export default function TypesPage() {
   // Flexboxes are incredibly powerful. You can learn more on MDN web docs linked below (or many other online 
   // resources).
   // https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox
-  const flexFormat = { display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly' };
+  // const flexFormat = { display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', height: '15vh'};
+
+  const flexFormat = {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-evenly',
+    // justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh', // Use minHeight to center vertically
+  };
 
   return (
     <Container style={flexFormat}>
@@ -18,11 +28,26 @@ export default function TypesPage() {
           key={type}
           p={3}
           m={2}
-          style={{ background: 'white', borderRadius: '16px', border: '2px solid #000' }}
+          // style={{ background: 'black', borderRadius: '16px', border: '2px solid #000' }}
+          style={{
+            background: 'black',
+            borderRadius: '16px',
+            border: '2px solid #000',
+            color: 'red', // Set the text color to red
+            textAlign: 'center', // Center the text
+            fontSize: '22px',
+          }}
         >
-          <h4><NavLink to={`/search_productions/${type}`}>{type}</NavLink></h4>
+          {/* <h4><NavLink to={`/search_productions/${type}`}>{type}</NavLink></h4> */}
+          <h4>
+              <NavLink to={`/search_productions/${type}`} style={{ color: 'red' }}>
+                {type}
+              </NavLink>
+          </h4>
         </Box>
       )}
     </Container>
   );
+
+
 };

@@ -18,7 +18,7 @@ function NavText({ href, text, isMain }) {
           textDecoration: 'none',
           transition: 'color 0.3s ease',
           '&:hover': {
-            color: '#ff4081',
+            color: '#ff0000',
           },
         },
       }}
