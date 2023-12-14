@@ -281,21 +281,30 @@ const search_productions = async function(req, res) {
   /*
   AND numVotes BETWEEN ${numVotesLow} AND ${numVotesHigh}
   */
-  connection.query(`
+  connection.query(
+    `
     SELECT DISTINCT pr.titleId, primaryTitle, startYear, runtimeMinutes, averageRating
-    FROM ${req.params.type} t JOIN prod_rating pr ON t.titleId = pr.titleId JOIN Genres g ON t.titleId = g.titleId
-    WHERE primaryTitle LIKE '%${primaryTitle}%' AND isAdult = ${isAdult} AND startYear BETWEEN ${startYearLow} AND ${startYearHigh}
-      AND runtimeMinutes BETWEEN ${runtimeMinutesLow} AND ${runtimeMinutesHigh} AND averageRating BETWEEN ${averageRatingLow} AND
-      ${averageRatingHigh}${genreQuery}
+    FROM ${req.params.type} t
+    JOIN prod_rating pr ON t.titleId = pr.titleId
+    JOIN Genres g ON t.titleId = g.titleId
+    WHERE primaryTitle LIKE ? AND isAdult = ? AND startYear BETWEEN ? AND ?
+      AND runtimeMinutes BETWEEN ? AND ? AND averageRating BETWEEN ? AND ? ${genreQuery}
     ORDER BY primaryTitle;
-  `, (err, data) => {
-    if (err) {
-      console.log(err);
-      res.json([]);
-    } else {
-      res.json(data);
+    `,
+    [
+      `%${primaryTitle}%`,
+      isAdult,
+      startYearLow,
+      startYearHigh,
+      runtimeMinutesLow,
+      runtimeMinutesHigh,
+      averageRatingLow,
+      averageRatingHigh,
+    ],
+    (err, data) => {
+      // Handle the result
     }
-  });
+  );
 };
 
 
