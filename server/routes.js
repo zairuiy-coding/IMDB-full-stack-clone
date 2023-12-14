@@ -170,17 +170,28 @@ const ProductionInfoView = (callback) => {
             Person PS ON PC.personId = PS.personId
         JOIN
             Rating R ON P.titleId = R.titleId
-    `, callback);
+    `, (err) => {
+        if (err) {
+            console.log("Error creating ProductionInfoView:", err);
+            callback(err);
+        } else {
+            console.log("ProductionInfoView created successfully");
+            callback(null);
+        }
+    });
 };
 
 // Initialize the ProductionInfoView when the application starts
 ProductionInfoView((err) => {
     if (err) {
-        console.log("Error creating view:", err);
+        // Handle initialization error, if any
+        console.log("Error initializing ProductionInfoView:", err);
     } else {
-        console.log("View created successfully");
+        // Continue with your application initialization
+        console.log("ProductionInfoView initialized successfully");
     }
 });
+
 
 // Route to fetch data from the view
 const production = (req, res) => {
