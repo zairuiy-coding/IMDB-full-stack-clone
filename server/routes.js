@@ -146,70 +146,10 @@ const top20ForYear = async function(req, res) {
  * PRODUCT INFO PAGE *
  *********************/
 
-// Function to create the view
-const ProductionInfoView = (callback) => {
-    connection.query(`
-        CREATE OR REPLACE VIEW ProductionInfoView AS
-        SELECT
-            P.titleId,
-            P.primaryTitle,
-            P.isAdult,
-            P.startYear,
-            P.runtimeMinutes,
-            R.averageRating,
-            G.genre,
-            PS.primaryName AS personName,
-            PC.category AS role
-        FROM
-            Production P
-        JOIN
-            Genres G ON P.titleId = G.titleId
-        JOIN
-            Principal PC ON P.titleId = PC.titleId
-        JOIN
-            Person PS ON PC.personId = PS.personId
-        JOIN
-            Rating R ON P.titleId = R.titleId
-    `, (err) => {
-        if (err) {
-            console.log("Error creating ProductionInfoView:", err);
-            callback(err);
-        } else {
-            console.log("ProductionInfoView created successfully");
-            callback(null);
-        }
-    });
-};
-
-// Initialize the ProductionInfoView when the application starts
-ProductionInfoView((err) => {
-    if (err) {
-        // Handle initialization error, if any
-        console.log("Error initializing ProductionInfoView:", err);
-    } else {
-        // Continue with your application initialization
-        console.log("ProductionInfoView initialized successfully");
-    }
-});
-
-
-// Route to fetch data from the view
-const production = (req, res) => {
-    connection.query(`
-        SELECT * FROM ProductionInfoView WHERE titleId = ?
-    `, [req.params.titleId], (err, data) => {
-        if (err || data.length === 0) {
-            console.log(err);
-            res.json({});
-        } else {
-            res.json(data);
-        }
-    });
-};
-
-// const production = async function(req, res) {
+// // Function to create the view
+// const ProductionInfoView = (callback) => {
 //     connection.query(`
-//     CREATE VIEW ProductionInfo (titleId, primaryTitle, isAdult, startYear, runtimeMinutes, averageRating, genre, personName, role) AS (
+//         CREATE OR REPLACE VIEW ProductionInfoView AS
 //         SELECT
 //             P.titleId,
 //             P.primaryTitle,
@@ -230,22 +170,80 @@ const production = (req, res) => {
 //             Person PS ON PC.personId = PS.personId
 //         JOIN
 //             Rating R ON P.titleId = R.titleId
-//         )
-    
-//     SELECT * FROM ProductionInfo WHERE titleId = ?;
-//   `, 
-//   [req.params.titleId],
-//   (err, data) => {
-//     if (err || data.length === 0) {
-//       console.log(err);
-//       res.json({});
-//     } else {
-//       res.json(
-//         data
-//       );
-//     }
-//   });
+//     `, (err) => {
+//         if (err) {
+//             console.log("Error creating ProductionInfoView:", err);
+//             callback(err);
+//         } else {
+//             console.log("ProductionInfoView created successfully");
+//             callback(null);
+//         }
+//     });
 // };
+
+// // Initialize the ProductionInfoView when the application starts
+// ProductionInfoView((err) => {
+//     if (err) {
+//         // Handle initialization error, if any
+//         console.log("Error initializing ProductionInfoView:", err);
+//     } else {
+//         // Continue with your application initialization
+//         console.log("ProductionInfoView initialized successfully");
+//     }
+// });
+
+
+// // Route to fetch data from the view
+// const production = (req, res) => {
+//     connection.query(`
+//         SELECT * FROM ProductionInfoView WHERE titleId = ?
+//     `, [req.params.titleId], (err, data) => {
+//         if (err || data.length === 0) {
+//             console.log(err);
+//             res.json({});
+//         } else {
+//             res.json(data);
+//         }
+//     });
+// };
+
+const production = async function(req, res) {
+    connection.query(`
+    SELECT
+        P.titleId,
+        P.primaryTitle,
+        P.isAdult,
+        P.startYear,
+        P.runtimeMinutes,
+        R.averageRating,
+        G.genre,
+        PS.primaryName AS personName,
+        PC.category AS role
+    FROM
+        Production P
+    JOIN
+        Genres G ON P.titleId = G.titleId
+    JOIN
+        Principal PC ON P.titleId = PC.titleId
+    JOIN
+        Person PS ON PC.personId = PS.personId
+    JOIN
+        Rating R ON P.titleId = R.titleId
+    WHERE
+        P.titleId = ?
+  `, 
+  [req.params.titleId],
+  (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(
+        data
+      );
+    }
+  });
+};
 
 
 /**************************
