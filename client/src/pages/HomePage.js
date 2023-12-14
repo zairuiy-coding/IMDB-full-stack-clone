@@ -16,7 +16,6 @@ import Title from '../components/Title';
 import ProductionCard from '../components/ProductionCard';
 import ProductionCardYear from '../components/ProductionCardYear';
 
-
 const config = require('../config.json');
 
 export default function HomePage({ type }) {
@@ -60,32 +59,52 @@ export default function HomePage({ type }) {
         <Container component="main">
             <br></br>
             <Title> TOP 250 </Title>
-            <Grid container spacing={5} alignItems="flex-end">
-                <Grid
+            <Grid container spacing={5} alignItems="flex-end" >
+                <Grid 
                     item
                     xs={12}
                     sm={12}
                     md={4}
+                    
                 >
-                    <Card>
-                        <CardHeader
+                    
+                    <Card
+                
+                        //style ={{backgroundImage: "url(/1.png)"}}
+                        style ={{backgroundImage:"linear-gradient(rgba(0, 0, 0, 0.6),rgba(0, 0, 0, 0.6)) , url(/1.png)"}}
+                        sx={{
+                            maxWidth: 400,
+                            margin: 'auto',
+                            boxShadow: 3,
+                            borderRadius: 12,
+                            // bgcolor: 'background.paper'
+                          }}>
+                        <CardHeader 
                             title={'TOP 250 ' + typeMap[type]}
-                            titleTypographyProps={{ align: 'center' }}
+                            titleTypographyProps={{ variant: 'h5', align: 'center' }}
                             subheaderTypographyProps={{
                                 align: 'center',
                             }}
                             sx={{
-                                backgroundColor: (theme) =>
-                                    theme.palette.mode === 'light'
-                                        ? theme.palette.grey[200]
-                                        : theme.palette.grey[700],
-                            }}
+                                color: 'white',
+                                padding: 2,
+                              }}
                         />
-                        <CardContent sx = {{height: 280, display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center'}}>
-                            {loading && <p>Loading...</p>}
-                            {error && <p>Error: {error.message}</p>}
+                        <CardContent 
+                             sx={{
+                                height: 280,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                //backgroundColor: '#bbff00',
+                                // backgroundColor: '#bbff00',
+                                // transition: 'background-color 0.3s ease',
+                              }}
+                        >
+                            {loading && <Typography variant="subtitle1"  color="white">Loading...</Typography>}
+                            {error && <Typography variant="subtitle1" color="white">
+                                        Error: {error.message}
+                                      </Typography>}
                             <Box
                                 sx={{
                                     display: 'flex',
@@ -93,10 +112,11 @@ export default function HomePage({ type }) {
                                     alignItems: 'baseline',
                                     mb: 2,
                                 }}
+                                
                             >
                             </Box>
                             {!loading && !error &&
-                            <ol>
+                            <ol style={{ textDecoration: 'none', color: '#FFF'}}>
                                 {top250.map((d, index) => (
                                     index < 5 &&
                                     <Typography
@@ -105,7 +125,7 @@ export default function HomePage({ type }) {
                                         align="center"
                                         key={d.primaryTitle + ": " + d.averageRating}
                                     >
-                                        <Link to={`/production_info/${d.titleId}?type=${type}`} style={{ textDecoration: 'none' }}>
+                                        <Link to={`/production_info/${d.titleId}?type=${type}`} style={{ textDecoration: 'none', color: '#FFF'}}>
                                             {d.primaryTitle + ": " + d.averageRating}
                                         </Link>
                                     </Typography>
@@ -114,8 +134,8 @@ export default function HomePage({ type }) {
                             }
                         </CardContent>
                         <CardActions>
-                            <Button fullWidth>
-                                <Link to="/TopInfoPage" underline="none" state={{ data: top250 }}>
+                            <Button fullWidth >
+                                <Link to="/TopInfoPage" underline="none" state={{ data: top250 }} style={{ textDecoration: 'none', color: '#FFF'}}>
                                     Show more
                                 </Link>
                             </Button>
@@ -128,16 +148,16 @@ export default function HomePage({ type }) {
             <br></br>
             <Title> TOP 20 for Each Genre </Title>
             <Grid container spacing={5} alignItems="flex-end">
-                {genres.map((genre) => (
-                    <ProductionCard genre = {genre} type = {type}/>
+                {genres.map((genre, index) => (
+                    <ProductionCard genre = {genre} type = {type} num = {index}/>
                 ))}
             </Grid>
 
             <br></br>
             <Title> TOP 20 for Each Year </Title>
             <Grid container spacing={5} alignItems="flex-end">
-                {years.map((year) => (
-                    <ProductionCardYear year = {year} type = {type}/>
+                {years.map((year, index) => (
+                    <ProductionCardYear year = {year} type = {type} num = {index}/>
                 ))}
             </Grid>
 

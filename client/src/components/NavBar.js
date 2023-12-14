@@ -1,47 +1,46 @@
-import { AppBar, Container, Toolbar, Typography } from '@mui/material'
+import React from 'react';
+import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 
-// The hyperlinks in the NavBar contain a lot of repeated formatting code so a
-// helper component NavText local to the file is defined to prevent repeated code.
 function NavText({ href, text, isMain }) {
   return (
     <Typography
-      variant={isMain ? 'h5' : 'h7'}
+      variant={isMain ? 'h5' : 'h6'}
       noWrap
-      style={{
-        marginRight: '30px',
-        fontFamily: 'monospace',
-        fontWeight: 700,
-        letterSpacing: '.3rem',
-      }}
-    >
-      <NavLink
-        to={href}
-        style={{
+      sx={{
+        marginRight: '40px',
+        fontFamily: 'Roboto, sans-serif',
+        fontWeight: 600,
+        letterSpacing: '.1rem',
+        color: '#ffffff',
+        '& a': {
           color: 'inherit',
           textDecoration: 'none',
-        }}
-      >
-        {text}
-      </NavLink>
+          transition: 'color 0.3s ease',
+          '&:hover': {
+            color: '#ff4081',
+          },
+        },
+      }}
+    >
+      <NavLink to={href}>{text}</NavLink>
     </Typography>
-  )
+  );
 }
 
-// Here, we define the NavBar. Note that we heavily leverage MUI components
-// to make the component look nice. Feel free to try changing the formatting
-// props to how it changes the look of the component.
 export default function NavBar() {
   return (
-    <AppBar position='static'>
-      <Container maxWidth='xl'>
+    <AppBar position="static" sx={{ backgroundColor: '#2196f3', borderBottom: '2px solid #27ae60' }}>
+      <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <NavText href='/' text='PMDB' isMain />
-          <NavText href='/movie' text='MOVIES' />
-          <NavText href='/short' text='SHORTS' />
-          <NavText href='/TVSeries' text='TVSERIES' />
-          <NavText href='/search_productions' text='SEARCH PRODUCTIONS' />
-          <NavText href='/search_people' text='SEARCH PEOPLE' />
+          <Typography variant="h4" sx={{ flexGrow: 1, fontFamily: 'Pacifico, cursive', color: '#ffffff' }}>
+            PMDB
+          </Typography>
+          <NavText href="/movie" text="Movies" />
+          <NavText href="/short" text="Shorts" />
+          <NavText href="/TVSeries" text="TV Series" />
+          <NavText href="/search_productions" text="Search Productions" />
+          <NavText href="/search_people" text="Search People" />
         </Toolbar>
       </Container>
     </AppBar>
