@@ -54,7 +54,7 @@ export default function HomePage({ type }) {
 
     }, [type]);
 
-
+    
     return (
         <Container component="main">
             <br></br>

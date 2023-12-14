@@ -4,6 +4,7 @@ import { indigo, amber, deepOrange, blue} from '@mui/material/colors';
 import { createTheme } from "@mui/material/styles";
 
 import NavBar from './components/NavBar';
+import StartPage from './pages/StartPage';
 import HomePage from './pages/HomePage';
 import TopInfoPage from "./pages/TopInfoPage";
 
@@ -29,7 +30,7 @@ export default function App() {
       <BrowserRouter>
         <NavBar />
         <Routes>
-          <Route path="/" element={<HomePage type={'Movie'}/>} />
+          <Route path="/" element={<StartPage/>} />
           <Route path="/movie" element={<HomePage type={'Movie'}/>} />
           <Route path="/short" element={<HomePage type={'Short'} />} />
           <Route path="/TVSeries" element={<HomePage type={'TVSeries'} />} />

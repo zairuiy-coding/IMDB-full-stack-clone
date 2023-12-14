@@ -27,10 +27,10 @@ function NavText({ href, text, isMain }) {
     </Typography>
   );
 }
-
+// '#2196f3' #27ae60
 export default function NavBar() {
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#2196f3', borderBottom: '2px solid #27ae60' }}>
+    <AppBar position="static" sx={{ backgroundColor:'#000000' , borderBottom: '2px solid #000000' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Typography variant="h4" sx={{ flexGrow: 1, fontFamily: 'Pacifico, cursive', color: '#ffffff' }}>
