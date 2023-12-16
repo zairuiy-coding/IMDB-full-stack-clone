@@ -3,7 +3,7 @@
     "rds_port": "3306",
     "rds_user": "Wen",
     "rds_password": "JiangWen352761",
-    "rds_db": "cis5500_project",
+    "rds_db": "cis5500_project_db",
     "server_host": "localhost",
     "server_port": "8080"
 }
