@@ -207,31 +207,49 @@ const top20ForYear = async function(req, res) {
 //     });
 // };
 
+// const production = async function(req, res) {
+//     connection.query(`
+//     SELECT
+//         P.titleId,
+//         P.primaryTitle,
+//         P.isAdult,
+//         P.startYear,
+//         P.runtimeMinutes,
+//         R.averageRating,
+//         G.genre,
+//         PS.primaryName AS personName,
+//         PS.personId AS personId,
+//         PC.category AS role
+//     FROM
+//         Production P
+//     JOIN
+//         Genres G ON P.titleId = G.titleId
+//     JOIN
+//         Principal PC ON P.titleId = PC.titleId
+//     JOIN
+//         Person PS ON PC.personId = PS.personId
+//     JOIN
+//         Rating R ON P.titleId = R.titleId
+//     WHERE
+//         P.titleId = ?
+//   `, 
+//   [req.params.titleId],
+//   (err, data) => {
+//     if (err || data.length === 0) {
+//       console.log(err);
+//       res.json({});
+//     } else {
+//       res.json(
+//         data
+//       );
+//     }
+//   });
+// };
+
+// optimized and simplified after creating the table ProductionInfoView to cache join result
 const production = async function(req, res) {
     connection.query(`
-    SELECT
-        P.titleId,
-        P.primaryTitle,
-        P.isAdult,
-        P.startYear,
-        P.runtimeMinutes,
-        R.averageRating,
-        G.genre,
-        PS.primaryName AS personName,
-        PS.personId AS personId,
-        PC.category AS role
-    FROM
-        Production P
-    JOIN
-        Genres G ON P.titleId = G.titleId
-    JOIN
-        Principal PC ON P.titleId = PC.titleId
-    JOIN
-        Person PS ON PC.personId = PS.personId
-    JOIN
-        Rating R ON P.titleId = R.titleId
-    WHERE
-        P.titleId = ?
+    SELECT * FROM ProductionInfoView WHERE titleId = ?
   `, 
   [req.params.titleId],
   (err, data) => {
@@ -403,6 +421,31 @@ const similarProductions = async function (req, res) {
         }
       });
 };
+
+// const similarProductions = async function (req, res) {
+//     const Query = `
+//       SELECT P.titleId, P.primaryTitle, P.isAdult, P.startYear, R.averageRating
+//       FROM SimilarProductView P
+//       JOIN ${req.params.productionType} T
+//       On P.titleId = T.titleId
+//       WHERE R.numVotes > 10000 AND genre IN (SELECT genre FROM Genres WHERE titleId = '${req.params.titleId}')
+//           AND startYear <= ${req.params.thisYear} + 10 AND startYear >= ${req.params.thisYear} - 10
+//           AND P.titleId <> '${req.params.titleId}'
+//       GROUP BY P.titleId, P.primaryTitle, P.isAdult, P.startYear, R.averageRating
+//       HAVING COUNT(genre) >= 2
+//       ORDER BY R.averageRating DESC
+//       LIMIT 10
+//     `;
+
+//     connection.query(Query,  (err, data) => {
+//       if (err || data.length === 0) {
+//         console.error(err);
+//         res.json([]);
+//       } else {
+//         res.json(data);
+//       }
+//     });
+// };
 
 
 module.exports = {
