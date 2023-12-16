@@ -71,7 +71,7 @@ export default function PersonSearchPage() {
         </Grid>
         <Grid item xs={6}>
           <p>Birth Year</p>
-          <Slider
+          <Slider style={{ color: 'black' }}
             value={birthYear}
             min={0}
             max={2023}
@@ -82,7 +82,7 @@ export default function PersonSearchPage() {
         </Grid>
         <Grid item xs={6}>
           <p>Death Year</p>
-          <Slider
+          <Slider style={{ color: 'black' }}
             value={deathYear}
             min={0}
             max={2023}
@@ -92,7 +92,10 @@ export default function PersonSearchPage() {
           />
         </Grid>
       </Grid>
-      <Button onClick={() => search()} style={{ left: '50%', transform: 'translateX(-50%)' }}>
+      <Button onClick={() => search()} 
+       style={{ backgroundColor: 'black',color: 'white', left: '50%', 
+       transform: 'translateX(-50%)', fontWeight: 'bold', marginTop: '25px' }}>
+      {/* style={{ left: '50%', transform: 'translateX(-50%)' }}> */}
         Search
       </Button>
       <h2>Results</h2>
