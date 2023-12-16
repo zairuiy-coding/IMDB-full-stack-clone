@@ -31,6 +31,7 @@ export default function HomePage({ type }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const typeRef = useRef(type);
+    const imgGenre = type === 'Movie' ? '' : (type === 'Short' ? 's' : 't');
     //window.location.reload(false);
     //const typeMemo = useMemo(() => type, [type]);
     // The useEffect hook by default runs the provided callback after every render
@@ -71,7 +72,7 @@ export default function HomePage({ type }) {
                     <Card
                 
                         //style ={{backgroundImage: "url(/1.png)"}}
-                        style ={{backgroundImage:"linear-gradient(rgba(0, 0, 0, 0.6),rgba(0, 0, 0, 0.6)) , url(/1.png)"}}
+                        style ={{backgroundImage:"linear-gradient(rgba(0, 0, 0, 0.6),rgba(0, 0, 0, 0.6)) , url(/" + imgGenre + "1.png)"}}
                         sx={{
                             maxWidth: 400,
                             margin: 'auto',

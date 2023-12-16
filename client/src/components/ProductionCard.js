@@ -18,7 +18,8 @@ function ProductionCard({ genre, type, num}) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const typeRef = useRef(type);
-    const backgroundImage = "linear-gradient(rgba(0, 0, 0, 0.6),rgba(0, 0, 0, 0.6)) , url(/" + (num + 2) + ".png)";
+    const imgGenre = type === 'Movie' ? '' : (type === 'Short' ? 's' : 't');
+    const backgroundImage = "linear-gradient(rgba(0, 0, 0, 0.6),rgba(0, 0, 0, 0.6)) , url(/" + imgGenre + (num + 2) + ".png)";
     useEffect(() => {
         // Fetch request to get the song of the day. Fetch runs asynchronously.
         // The .then() method is called when the fetch request is complete
