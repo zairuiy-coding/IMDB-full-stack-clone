@@ -231,14 +231,24 @@ const search_people = async function(req, res) {
   const profession = req.query.profession;
   const professionQuery = (profession === 'All' || (!profession)) ? '' : ` AND profession = '${profession}'`;
 
-  connection.query(`
-    SELECT p.*, GROUP_CONCAT(profession SEPARATOR ', ') AS professions
+  /*
+  SELECT p.*, GROUP_CONCAT(profession SEPARATOR ', ') AS professions
     FROM Person p JOIN PrimaryProfessions pp ON p.personId = pp.personId
     WHERE p.personId IN (SELECT p.personId
                          FROM Person p JOIN PrimaryProfessions pp ON p.personId = pp.personId
                          WHERE primaryName LIKE '%${primaryName}%' AND birthYear >= ${birthYearLow} AND birthYear <= ${birthYearHigh}
                              AND deathYear >= ${deathYearLow} AND deathYear <= ${deathYearHigh}${professionQuery})
-    GROUP BY p.personId, primaryName
+    GROUP BY personId, primaryName
+    ORDER BY primaryName;
+  */
+  connection.query(`
+    SELECT p.*, GROUP_CONCAT(profession SEPARATOR ', ') AS professions
+    FROM Person p JOIN PrimaryProfessions pp ON p.personId = pp.personId
+    WHERE p.personId IN (SELECT personId
+                         FROM person_profess pp
+                         WHERE primaryName LIKE '%${primaryName}%' AND birthYear BETWEEN ${birthYearLow} AND ${birthYearHigh} AND
+                             deathYear BETWEEN ${deathYearLow} AND ${deathYearHigh}${professionQuery})
+    GROUP BY personId, primaryName
     ORDER BY primaryName;
   `, (err, data) => {
     if (err) {
