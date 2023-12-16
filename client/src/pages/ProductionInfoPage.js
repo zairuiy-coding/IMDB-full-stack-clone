@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Stack } from '@mui/material';
 import SimpleTable from '../components/SimpleTable';
+import { NavLink } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 
 const config = require('../config.json');
@@ -83,7 +85,9 @@ const tableColumns = [
                 component="li"
                 variant="subtitle1"
               >
-                {prod.personName + ": " + prod.role}
+                {/* <NavLink to={`/prsonInfo/${prod.personId}`}>{prod.personName}</NavLink> */}
+                <Link to={`/person_info/${prod.personId}`}>{prod.personName}</Link>
+                {": " + prod.role} 
               </p>
             ))}
             <h2>Similar Product Recommendation:</h2>
