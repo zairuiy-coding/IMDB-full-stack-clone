@@ -106,7 +106,7 @@ export default function ProductionSearchPage({ type }) {
         </Grid>
         <Grid item xs={ryWidth}>
           <p>Release Year</p>
-          <Slider
+          <Slider style={{ color: 'black' }}
             value={startYear}
             min={releaseYear[0]}
             max={releaseYear[1]}
@@ -117,7 +117,7 @@ export default function ProductionSearchPage({ type }) {
         </Grid>
         <Grid item xs={12-ryWidth}>
           <p>Runtime (mins)</p>
-          <Slider
+          <Slider style={{ color: 'black' }}
             value={runtimeMinutes}
             min={runtime[0]}
             max={runtime[1]}
@@ -128,7 +128,7 @@ export default function ProductionSearchPage({ type }) {
         </Grid>
         <Grid item xs={arWidth}>
           <p>Average Rating</p>
-          <Slider
+          <Slider style={{ color: 'black' }}
             value={averageRating}
             min={0.0}
             max={10.0}
@@ -139,7 +139,7 @@ export default function ProductionSearchPage({ type }) {
         </Grid>
         <Grid item xs={12-arWidth}>
           <p>Number of Votes</p>
-          <Slider
+          <Slider style={{ color: 'black' }}
             value={numVotes}
             min={numOfVotes[0]}
             max={numOfVotes[1]}
@@ -149,7 +149,9 @@ export default function ProductionSearchPage({ type }) {
           />
         </Grid>
       </Grid>
-      <Button onClick={() => search()} style={{ left: '50%', transform: 'translateX(-50%)' }}>
+      <Button onClick={() => search()} 
+      style={{ backgroundColor: 'black',color: 'white', left: '50%', 
+      transform: 'translateX(-50%)', fontWeight: 'bold', marginTop: '25px' }}>
         Search
       </Button>
       <h2>Results</h2>

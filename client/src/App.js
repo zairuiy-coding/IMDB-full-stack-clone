@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import { indigo, amber } from '@mui/material/colors';
+import { indigo, amber, deepOrange, blue} from '@mui/material/colors';
 import { createTheme } from "@mui/material/styles";
 
 import NavBar from './components/NavBar';
+import StartPage from './pages/StartPage';
 import HomePage from './pages/HomePage';
 import TopInfoPage from "./pages/TopInfoPage";
 
@@ -15,7 +16,9 @@ import PersonInfoPage from "./pages/PersonInfoPage";
 
 export const theme = createTheme({
   palette: {
-    primary: indigo,
+    // primary: indigo,
+    // secondary: amber,
+    primary: blue,
     secondary: amber,
   },
 });
@@ -27,7 +30,7 @@ export default function App() {
       <BrowserRouter>
         <NavBar />
         <Routes>
-          <Route path="/" element={<HomePage type={'Movie'}/>} />
+          <Route path="/" element={<StartPage/>} />
           <Route path="/movie" element={<HomePage type={'Movie'}/>} />
           <Route path="/short" element={<HomePage type={'Short'} />} />
           <Route path="/TVSeries" element={<HomePage type={'TVSeries'} />} />
@@ -36,11 +39,13 @@ export default function App() {
           <Route path='/search_productions/Movies' element={<ProductionSearchPage type={'Movie'}/>} />
           <Route path='/search_productions/Shorts' element={<ProductionSearchPage type={'Short'}/>} />
           <Route path='/search_productions/TV Series' element={<ProductionSearchPage type={'TVSeries'}/>} />
-          <Route path='/production_info/:titleId' element={<ProductionInfoPage />} />
+          <Route path='/production_info/:titleId' element={<ProductionInfoPage type={'Movie'}/>} />
+          <Route path='/production_info/:titleId' element={<ProductionInfoPage type={'Short'}/>} />
+          <Route path='/production_info/:titleId' element={<ProductionInfoPage type={'TVSeries'}/>} />
           <Route path='/search_people' element={<PersonSearchPage />} />
           <Route path='/person_info/:personId' element={<PersonInfoPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
-  );
+  ); 
 };
