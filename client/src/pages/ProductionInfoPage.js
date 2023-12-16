@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Stack } from '@mui/material';
 import SimpleTable from '../components/SimpleTable';
-import { NavLink } from 'react-router-dom';
-import { Link } from "react-router-dom";
-
+import { Link } from 'react-router-dom';
 
 const config = require('../config.json');
 
@@ -12,11 +10,9 @@ const ProductionInfoPage = ({ type }) => {
   const { titleId } = useParams();
 
   const [productionData, setProductionData] = useState([]);
-//   const [similarProductionData, setSimilarProductionData] = useState([]);
   const [thisYear, setThisYear] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-//   const [thisTitle, setThisTitle] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,17 +25,12 @@ const ProductionInfoPage = ({ type }) => {
 
         const year = productionJson.length > 0 ? productionJson[0].startYear : null;
         setThisYear(year);
-        setProductionData(productionJson);
 
-        // setThisTitle(productionData.length > 0 ? productionData[0].primaryTitle : null);
-        // console.log("thisTitle: ", thisTitle);
+        // Filter unique "personName" values
+        const uniqueProductionData = Array.from(new Set(productionJson.map(prod => prod.personName)))
+          .map(personName => productionJson.find(prod => prod.personName === personName));
 
-        // if (year !== null) {
-        //   const similarRes = await fetch(`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${year}`);
-        //   const similarJson = await similarRes.json();
-        //   console.log('Similar Production Data:', similarJson);
-        //   setSimilarProductionData(similarJson);
-        // }
+        setProductionData(uniqueProductionData);
       } catch (error) {
         setError(error);
       } finally {
@@ -50,17 +41,7 @@ const ProductionInfoPage = ({ type }) => {
     fetchData();
   }, [titleId]);
 
-//   useEffect(() => {
-//     // Set thisTitle when productionData changes
-//     if (productionData.length > 0) {
-//       setThisTitle(productionData[0].primaryTitle);
-//     }
-//     console.log("thisTitle: ", thisTitle);
-//   }, [productionData]);
-
-
-// Define columns for the LazyTable component
-const tableColumns = [
+  const tableColumns = [
     { field: 'primaryTitle', headerName: 'Product Title' },
     { field: 'startYear', headerName: 'Start Year' },
     { field: 'averageRating', headerName: 'Rating' },
@@ -81,36 +62,20 @@ const tableColumns = [
             <h2>Principals</h2>
             {productionData.slice(0, 5).map((prod, index) => (
               <p
-                key={prod.personName + ": " + prod.role}
-                component="li"
-                variant="subtitle1"
+                key={prod.personName + ': ' + prod.role}
+                component='li'
+                variant='subtitle1'
               >
-                {/* <NavLink to={`/prsonInfo/${prod.personId}`}>{prod.personName}</NavLink> */}
                 <Link to={`/person_info/${prod.personId}`}>{prod.personName}</Link>
-                {": " + prod.role} 
+                {': ' + prod.role}
               </p>
             ))}
             <h2>Similar Product Recommendation:</h2>
             <SimpleTable
-                route={`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`}
-                columns={tableColumns}
-                filter={(simProd) => simProd.titleId !== titleId && simProd.primaryTitle !== productionData[0].primaryTitle} // Exclude the current product
+              route={`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`}
+              columns={tableColumns}
+              filter={(simProd) => simProd.titleId !== titleId && simProd.primaryTitle !== productionData[0].primaryTitle}
             />
-
-
-
-            {/* {similarProductionData.slice(0, 5).map((simProd, index) => (
-              <p
-                key={simProd.personName + ": " + simProd.role}
-                component="li"
-                variant="subtitle1"
-              >
-                {"Product Title: " + simProd.primaryTitle}
-                {"Start Year: " + simProd.startYear}
-                {"Rating: " + simProd.averageRating}
-              </p>
-            ))} */}
-
           </div>
         </Stack>
       )}
