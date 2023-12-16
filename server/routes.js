@@ -264,8 +264,6 @@ const search_productions = async function(req, res) {
 
   const averageRatingLow = req.query.averageRatingLow ?? 0.0;
   const averageRatingHigh = req.query.averageRatingHigh ?? 10.0;
-  // const numVotesLow = req.query.numVotesLow ?? 0;
-  // const numVotesHigh = req.query.numVotesHigh ?? 3000000;
 
   /*
   SELECT p.titleId, primaryTitle, startYear, runtimeMinutes, averageRating
@@ -273,21 +271,16 @@ const search_productions = async function(req, res) {
     JOIN Rating r ON t.titleId = r.titleId
   WHERE primaryTitle LIKE '%${primaryTitle}%' AND isAdult = ${isAdult} AND startYear >= ${startYearLow} AND startYear <= ${startYearHigh}
     AND runtimeMinutes >= ${runtimeMinutesLow} AND runtimeMinutes <= ${runtimeMinutesHigh} AND averageRating >= ${averageRatingLow}
-    AND averageRating <= ${averageRatingHigh} AND numVotes >= ${numVotesLow} AND numVotes <= ${numVotesHigh}${genreQuery}
-  GROUP BY titleId
+    AND averageRating <= ${averageRatingHigh}${genreQuery}
+  GROUP BY titleId, primaryTitle
   ORDER BY primaryTitle;
   */
-  /*
-  AND numVotes BETWEEN ${numVotesLow} AND ${numVotesHigh}
-  */
-  connection.query(
-    `
-    SELECT DISTINCT pr.titleId, primaryTitle, startYear, runtimeMinutes, averageRating
-    FROM ${req.params.type} t
-    JOIN prod_rating pr ON t.titleId = pr.titleId
-    JOIN Genres g ON t.titleId = g.titleId
-    WHERE primaryTitle LIKE ? AND isAdult = ? AND startYear BETWEEN ? AND ?
-      AND runtimeMinutes BETWEEN ? AND ? AND averageRating BETWEEN ? AND ? ${genreQuery}
+  connection.query(`
+    SELECT DISTINCT prg.titleId, primaryTitle, startYear, runtimeMinutes, averageRating
+    FROM ${req.params.type} t JOIN prod_rating_genres prg on t.titleId = prg.titleId
+    WHERE primaryTitle LIKE '%${primaryTitle}%' AND isAdult = ${isAdult} AND startYear BETWEEN ${startYearLow} AND ${startYearHigh} AND
+        runtimeMinutes BETWEEN ${runtimeMinutesLow} AND ${runtimeMinutesHigh} AND
+        averageRating BETWEEN ${averageRatingLow} AND ${averageRatingHigh}${genreQuery}
     ORDER BY primaryTitle;
     `,
     [
@@ -321,14 +314,24 @@ const search_people = async function(req, res) {
   const profession = req.query.profession;
   const professionQuery = (profession === 'All' || (!profession)) ? '' : ` AND profession = '${profession}'`;
 
-  connection.query(`
-    SELECT p.*, GROUP_CONCAT(profession SEPARATOR ', ') AS professions
+  /*
+  SELECT p.*, GROUP_CONCAT(profession SEPARATOR ', ') AS professions
     FROM Person p JOIN PrimaryProfessions pp ON p.personId = pp.personId
     WHERE p.personId IN (SELECT p.personId
                          FROM Person p JOIN PrimaryProfessions pp ON p.personId = pp.personId
                          WHERE primaryName LIKE '%${primaryName}%' AND birthYear >= ${birthYearLow} AND birthYear <= ${birthYearHigh}
                              AND deathYear >= ${deathYearLow} AND deathYear <= ${deathYearHigh}${professionQuery})
-    GROUP BY p.personId, primaryName
+    GROUP BY personId, primaryName
+    ORDER BY primaryName;
+  */
+  connection.query(`
+    SELECT p.*, GROUP_CONCAT(profession SEPARATOR ', ') AS professions
+    FROM Person p JOIN PrimaryProfessions pp ON p.personId = pp.personId
+    WHERE p.personId IN (SELECT personId
+                         FROM person_profess pp
+                         WHERE primaryName LIKE '%${primaryName}%' AND birthYear BETWEEN ${birthYearLow} AND ${birthYearHigh} AND
+                             deathYear BETWEEN ${deathYearLow} AND ${deathYearHigh}${professionQuery})
+    GROUP BY personId, primaryName
     ORDER BY primaryName;
   `, (err, data) => {
     if (err) {

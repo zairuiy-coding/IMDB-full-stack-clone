@@ -32,7 +32,7 @@ const ProductionInfoPage = ({ type }) => {
         const uniqueProductionData = Array.isArray(productionJson)
           ? Array.from(new Set(productionJson.map(prod => prod.personName)))
               .map(personName => productionJson.find(prod => prod.personName === personName))
-          : [];
+          : null;
         const personSetWithLink = new Set();
         
         Promise.all(uniqueProductionData.map(p => new Promise(async (resolve) => {
@@ -43,6 +43,8 @@ const ProductionInfoPage = ({ type }) => {
             }
             resolve()
         }))).then(() =>  {setPersonWithLink(personSetWithLink);});
+       
+
         setProductionData(uniqueProductionData);
       } catch (error) {
         setError(error);
@@ -81,7 +83,7 @@ const ProductionInfoPage = ({ type }) => {
     <Container>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error.message}</p>}
-      {!loading && !error && productionData.length > 0 && (
+      {!loading && !error && productionData !== null && productionData.length > 0 && (
         <Stack direction='row' justify='center'>
           <div>
             <h1 style={{ fontSize: 64 }}>{productionData[0].primaryTitle}</h1>
@@ -113,6 +115,9 @@ const ProductionInfoPage = ({ type }) => {
             )}
           </div>
         </Stack>
+      )}
+      {!loading && !error && productionData === null && (
+        <p>Production Info currently not available.</p>
       )}
     </Container>
   );
