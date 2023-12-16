@@ -264,7 +264,19 @@ const search_productions = async function(req, res) {
 
   const averageRatingLow = req.query.averageRatingLow ?? 0.0;
   const averageRatingHigh = req.query.averageRatingHigh ?? 10.0;
-
+  
+//   console.log([
+//     primaryTitle,
+//     isAdult,
+//     startYearLow,
+//     startYearHigh,
+//     runtimeMinutesLow,
+//     runtimeMinutesHigh,
+//     averageRatingLow,
+//     averageRatingHigh,
+//     genre,
+//     genreQuery
+//   ])
   /*
   SELECT p.titleId, primaryTitle, startYear, runtimeMinutes, averageRating
   FROM ${req.params.type} t JOIN Production p ON t.titleId = p.titleId JOIN Genres g ON t.titleId = g.titleId
@@ -283,19 +295,16 @@ const search_productions = async function(req, res) {
         averageRating BETWEEN ${averageRatingLow} AND ${averageRatingHigh}${genreQuery}
     ORDER BY primaryTitle;
     `,
-    [
-      `%${primaryTitle}%`,
-      isAdult,
-      startYearLow,
-      startYearHigh,
-      runtimeMinutesLow,
-      runtimeMinutesHigh,
-      averageRatingLow,
-      averageRatingHigh,
-    ],
     (err, data) => {
-      // Handle the result
-    }
+        if (err || data.length === 0) {
+          console.log(err);
+          res.json({});
+        } else {
+          res.json(
+            data
+          );
+        }
+      }
   );
 };
 
