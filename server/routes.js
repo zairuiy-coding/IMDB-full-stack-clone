@@ -218,6 +218,7 @@ const production = async function(req, res) {
         R.averageRating,
         G.genre,
         PS.primaryName AS personName,
+        PS.personId AS personId,
         PC.category AS role
     FROM
         Production P

@@ -14,7 +14,8 @@ const ProductionInfoPage = ({ type }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [similarProducts, setSimilarProducts] = useState([]);
-
+  const [personWithLink, setPersonWithLink] = useState(new Set());
+  
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -32,7 +33,16 @@ const ProductionInfoPage = ({ type }) => {
           ? Array.from(new Set(productionJson.map(prod => prod.personName)))
               .map(personName => productionJson.find(prod => prod.personName === personName))
           : [];
-
+        const personSetWithLink = new Set();
+        
+        Promise.all(uniqueProductionData.map(p => new Promise(async (resolve) => {
+            const personRes = await fetch(`http://${config.server_host}:${config.server_port}/personInfo/${p.personId}`)
+                .then(res => res.json());
+            if(Array.isArray(personRes) && personRes.length !== 0){
+                personSetWithLink.add(p.personId); 
+            }
+            resolve()
+        }))).then(() =>  {setPersonWithLink(personSetWithLink);});
         setProductionData(uniqueProductionData);
       } catch (error) {
         setError(error);
@@ -86,7 +96,8 @@ const ProductionInfoPage = ({ type }) => {
                 component='li'
                 variant='subtitle1'
               >
-                <Link to={`/person_info/${prod.personId}`}>{prod.personName}</Link>
+                {personWithLink.has(prod.personId) ? <Link to={`/person_info/${prod.personId}`}>{prod.personName}</Link>
+                 : prod.personName}
                 {': ' + prod.role}
               </p>
             ))}
