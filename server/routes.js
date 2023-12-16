@@ -188,8 +188,6 @@ const search_productions = async function(req, res) {
 
   const averageRatingLow = req.query.averageRatingLow ?? 0.0;
   const averageRatingHigh = req.query.averageRatingHigh ?? 10.0;
-  // const numVotesLow = req.query.numVotesLow ?? 0;
-  // const numVotesHigh = req.query.numVotesHigh ?? 3000000;
 
   /*
   SELECT p.titleId, primaryTitle, startYear, runtimeMinutes, averageRating
@@ -197,19 +195,16 @@ const search_productions = async function(req, res) {
     JOIN Rating r ON t.titleId = r.titleId
   WHERE primaryTitle LIKE '%${primaryTitle}%' AND isAdult = ${isAdult} AND startYear >= ${startYearLow} AND startYear <= ${startYearHigh}
     AND runtimeMinutes >= ${runtimeMinutesLow} AND runtimeMinutes <= ${runtimeMinutesHigh} AND averageRating >= ${averageRatingLow}
-    AND averageRating <= ${averageRatingHigh} AND numVotes >= ${numVotesLow} AND numVotes <= ${numVotesHigh}${genreQuery}
-  GROUP BY titleId
+    AND averageRating <= ${averageRatingHigh}${genreQuery}
+  GROUP BY titleId, primaryTitle
   ORDER BY primaryTitle;
   */
-  /*
-  AND numVotes BETWEEN ${numVotesLow} AND ${numVotesHigh}
-  */
   connection.query(`
-    SELECT DISTINCT pr.titleId, primaryTitle, startYear, runtimeMinutes, averageRating
-    FROM ${req.params.type} t JOIN prod_rating pr ON t.titleId = pr.titleId JOIN Genres g ON t.titleId = g.titleId
-    WHERE primaryTitle LIKE '%${primaryTitle}%' AND isAdult = ${isAdult} AND startYear BETWEEN ${startYearLow} AND ${startYearHigh}
-      AND runtimeMinutes BETWEEN ${runtimeMinutesLow} AND ${runtimeMinutesHigh} AND averageRating BETWEEN ${averageRatingLow} AND
-      ${averageRatingHigh}${genreQuery}
+    SELECT DISTINCT prg.titleId, primaryTitle, startYear, runtimeMinutes, averageRating
+    FROM ${req.params.type} t JOIN prod_rating_genres prg on t.titleId = prg.titleId
+    WHERE primaryTitle LIKE '%${primaryTitle}%' AND isAdult = ${isAdult} AND startYear BETWEEN ${startYearLow} AND ${startYearHigh} AND
+        runtimeMinutes BETWEEN ${runtimeMinutesLow} AND ${runtimeMinutesHigh} AND
+        averageRating BETWEEN ${averageRatingLow} AND ${averageRatingHigh}${genreQuery}
     ORDER BY primaryTitle;
   `, (err, data) => {
     if (err) {
