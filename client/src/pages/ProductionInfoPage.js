@@ -13,6 +13,7 @@ const ProductionInfoPage = ({ type }) => {
   const [thisYear, setThisYear] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [similarProducts, setSimilarProducts] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,8 +28,10 @@ const ProductionInfoPage = ({ type }) => {
         setThisYear(year);
 
         // Filter unique "personName" values
-        const uniqueProductionData = Array.from(new Set(productionJson.map(prod => prod.personName)))
-          .map(personName => productionJson.find(prod => prod.personName === personName));
+        const uniqueProductionData = Array.isArray(productionJson)
+          ? Array.from(new Set(productionJson.map(prod => prod.personName)))
+              .map(personName => productionJson.find(prod => prod.personName === personName))
+          : [];
 
         setProductionData(uniqueProductionData);
       } catch (error) {
@@ -40,6 +43,23 @@ const ProductionInfoPage = ({ type }) => {
 
     fetchData();
   }, [titleId]);
+
+  useEffect(() => {
+    const fetchSimilarProducts = async () => {
+      try {
+        const similarRes = await fetch(`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`);
+        const similarJson = await similarRes.json();
+        setSimilarProducts(similarJson);
+      } catch (error) {
+        setError(error);
+      }
+    };
+
+    // Fetch similar products only when thisYear is available
+    if (thisYear !== null) {
+      fetchSimilarProducts();
+    }
+  }, [titleId, thisYear, type]);
 
   const tableColumns = [
     { field: 'primaryTitle', headerName: 'Product Title' },
@@ -71,11 +91,15 @@ const ProductionInfoPage = ({ type }) => {
               </p>
             ))}
             <h2>Similar Product Recommendation:</h2>
-            <SimpleTable
-              route={`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`}
-              columns={tableColumns}
-              filter={(simProd) => simProd.titleId !== titleId && simProd.primaryTitle !== productionData[0].primaryTitle}
-            />
+            {similarProducts.length > 0 ? (
+              <SimpleTable
+                route={`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`}
+                columns={tableColumns}
+                filter={(simProd) => simProd.titleId !== titleId && simProd.primaryTitle !== productionData[0].primaryTitle}
+              />
+            ) : (
+              <p>No similar products found.</p>
+            )}
           </div>
         </Stack>
       )}
