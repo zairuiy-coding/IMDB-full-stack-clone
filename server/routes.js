@@ -17,6 +17,7 @@ connection.connect((err) => err && console.log(err));
  * RANDOM ROUTE *
  ****************/
 
+// Returns a random production
 const random = async function(req, res) { //isAdult is boolean in original data
   const isAdult = req.query.isAdult === true ? 1 : 0;
   connection.query(`
@@ -42,6 +43,7 @@ const random = async function(req, res) { //isAdult is boolean in original data
  * TOP PRODUCTION PAGE  *
  ************************/
 
+//  Return the top 250 productions for each production type(movie, short and tvSeries).
 const topProduction = async function(req, res) {
     connection.query(`
     SELECT P.titleId AS titleId, P.primaryTitle AS primaryTitle, P.isAdult AS isAdult,
@@ -66,6 +68,7 @@ const topProduction = async function(req, res) {
   });
 };
 
+// Return applicable genres for a specific production based on titleId.
 const genre = async function(req, res) {
     connection.query(`
     SELECT G.genre AS genre
@@ -85,6 +88,7 @@ const genre = async function(req, res) {
   });
 };
 
+//  Return the top 20 productions for each different genre, e.g. comedy, animation and documentary for each production type(movie, short and tvSeries)
 const top20ForGenre = async function(req, res) {
     const voteNumThresh = req.params.productionType !== 'Short' ? 10000 : 1000;
     connection.query(`
@@ -116,6 +120,7 @@ const top20ForGenre = async function(req, res) {
   });
 };
 
+// Return the top 20 productions in each year for each production type(movie, short and tvSeries).
 const top20ForYear = async function(req, res) {
     const voteNumThresh = req.params.productionType !== 'Short' ? 10000 : 1000;
     connection.query(`
@@ -146,106 +151,6 @@ const top20ForYear = async function(req, res) {
  * PRODUCT INFO PAGE *
  *********************/
 
-// // Function to create the view
-// const ProductionInfoView = (callback) => {
-//     connection.query(`
-//         CREATE OR REPLACE VIEW ProductionInfoView AS
-//         SELECT
-//             P.titleId,
-//             P.primaryTitle,
-//             P.isAdult,
-//             P.startYear,
-//             P.runtimeMinutes,
-//             R.averageRating,
-//             G.genre,
-//             PS.primaryName AS personName,
-//             PC.category AS role
-//         FROM
-//             Production P
-//         JOIN
-//             Genres G ON P.titleId = G.titleId
-//         JOIN
-//             Principal PC ON P.titleId = PC.titleId
-//         JOIN
-//             Person PS ON PC.personId = PS.personId
-//         JOIN
-//             Rating R ON P.titleId = R.titleId
-//     `, (err) => {
-//         if (err) {
-//             console.log("Error creating ProductionInfoView:", err);
-//             callback(err);
-//         } else {
-//             console.log("ProductionInfoView created successfully");
-//             callback(null);
-//         }
-//     });
-// };
-
-// // Initialize the ProductionInfoView when the application starts
-// ProductionInfoView((err) => {
-//     if (err) {
-//         // Handle initialization error, if any
-//         console.log("Error initializing ProductionInfoView:", err);
-//     } else {
-//         // Continue with your application initialization
-//         console.log("ProductionInfoView initialized successfully");
-//     }
-// });
-
-
-// // Route to fetch data from the view
-// const production = (req, res) => {
-//     connection.query(`
-//         SELECT * FROM ProductionInfoView WHERE titleId = ?
-//     `, [req.params.titleId], (err, data) => {
-//         if (err || data.length === 0) {
-//             console.log(err);
-//             res.json({});
-//         } else {
-//             res.json(data);
-//         }
-//     });
-// };
-
-// const production = async function(req, res) {
-//     connection.query(`
-//     SELECT
-//         P.titleId,
-//         P.primaryTitle,
-//         P.isAdult,
-//         P.startYear,
-//         P.runtimeMinutes,
-//         R.averageRating,
-//         G.genre,
-//         PS.primaryName AS personName,
-//         PS.personId AS personId,
-//         PC.category AS role
-//     FROM
-//         Production P
-//     JOIN
-//         Genres G ON P.titleId = G.titleId
-//     JOIN
-//         Principal PC ON P.titleId = PC.titleId
-//     JOIN
-//         Person PS ON PC.personId = PS.personId
-//     JOIN
-//         Rating R ON P.titleId = R.titleId
-//     WHERE
-//         P.titleId = ?
-//   `, 
-//   [req.params.titleId],
-//   (err, data) => {
-//     if (err || data.length === 0) {
-//       console.log(err);
-//       res.json({});
-//     } else {
-//       res.json(
-//         data
-//       );
-//     }
-//   });
-// };
-
 // optimized and simplified after creating the table ProductionInfoView to cache join result
 const production = async function(req, res) {
     connection.query(`
@@ -269,6 +174,7 @@ const production = async function(req, res) {
  * PRODUCTION SEARCH PAGE *
  **************************/
 
+// Returns an array of productions ordered by primaryTitle (ascending) with all their properties matching the search conditions
 const search_productions = async function(req, res) {
   const primaryTitle = req.query.primaryTitle ?? '';
   const isAdult = req.query.isAdult === 'true' ? 1 : 0;
@@ -331,6 +237,7 @@ const search_productions = async function(req, res) {
  * PERSON SEARCH PAGE *
  **********************/
 
+//  Returns an array of productions with all their properties matching the search query about person (primaryName and category) ordered by primaryTitle (ascending)
 const search_people = async function(req, res) {
   const primaryName = req.query.primaryName ?? '';
   const birthYearLow = req.query.birthYearLow ?? 1800;
@@ -375,6 +282,7 @@ const search_people = async function(req, res) {
  * PERSON INFO PAGE *
  ********************/
 
+// Return all information about a person
 const person = async function(req, res) {
     connection.query(`
     SELECT PS.primaryName, PS.birthyear, PS.deathyear, PP.profession, P.primaryTitle, P.titleId
@@ -402,6 +310,7 @@ const person = async function(req, res) {
  * SIMILAR PRODUCTIONS RECOMMENDATION *
  **************************************/
 
+// Returns an array of productions with all their properties matching the search query ordered by averageRating(descending)
 const similarProductions = async function (req, res) {
       const Query = `
         SELECT P.titleId, P.primaryTitle, P.isAdult, P.startYear, R.averageRating
@@ -430,31 +339,6 @@ const similarProductions = async function (req, res) {
         }
       });
 };
-
-// const similarProductions = async function (req, res) {
-//     const Query = `
-//       SELECT P.titleId, P.primaryTitle, P.isAdult, P.startYear, R.averageRating
-//       FROM SimilarProductView P
-//       JOIN ${req.params.productionType} T
-//       On P.titleId = T.titleId
-//       WHERE R.numVotes > 10000 AND genre IN (SELECT genre FROM Genres WHERE titleId = '${req.params.titleId}')
-//           AND startYear <= ${req.params.thisYear} + 10 AND startYear >= ${req.params.thisYear} - 10
-//           AND P.titleId <> '${req.params.titleId}'
-//       GROUP BY P.titleId, P.primaryTitle, P.isAdult, P.startYear, R.averageRating
-//       HAVING COUNT(genre) >= 2
-//       ORDER BY R.averageRating DESC
-//       LIMIT 10
-//     `;
-
-//     connection.query(Query,  (err, data) => {
-//       if (err || data.length === 0) {
-//         console.error(err);
-//         res.json([]);
-//       } else {
-//         res.json(data);
-//       }
-//     });
-// };
 
 
 module.exports = {
