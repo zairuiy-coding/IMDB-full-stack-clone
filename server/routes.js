@@ -207,30 +207,49 @@ const top20ForYear = async function(req, res) {
 //     });
 // };
 
+// const production = async function(req, res) {
+//     connection.query(`
+//     SELECT
+//         P.titleId,
+//         P.primaryTitle,
+//         P.isAdult,
+//         P.startYear,
+//         P.runtimeMinutes,
+//         R.averageRating,
+//         G.genre,
+//         PS.primaryName AS personName,
+//         PS.personId AS personId,
+//         PC.category AS role
+//     FROM
+//         Production P
+//     JOIN
+//         Genres G ON P.titleId = G.titleId
+//     JOIN
+//         Principal PC ON P.titleId = PC.titleId
+//     JOIN
+//         Person PS ON PC.personId = PS.personId
+//     JOIN
+//         Rating R ON P.titleId = R.titleId
+//     WHERE
+//         P.titleId = ?
+//   `, 
+//   [req.params.titleId],
+//   (err, data) => {
+//     if (err || data.length === 0) {
+//       console.log(err);
+//       res.json({});
+//     } else {
+//       res.json(
+//         data
+//       );
+//     }
+//   });
+// };
+
+// optimized and simplified after creating the table ProductionInfoView to cache join result
 const production = async function(req, res) {
     connection.query(`
-    SELECT
-        P.titleId,
-        P.primaryTitle,
-        P.isAdult,
-        P.startYear,
-        P.runtimeMinutes,
-        R.averageRating,
-        G.genre,
-        PS.primaryName AS personName,
-        PC.category AS role
-    FROM
-        Production P
-    JOIN
-        Genres G ON P.titleId = G.titleId
-    JOIN
-        Principal PC ON P.titleId = PC.titleId
-    JOIN
-        Person PS ON PC.personId = PS.personId
-    JOIN
-        Rating R ON P.titleId = R.titleId
-    WHERE
-        P.titleId = ?
+    SELECT * FROM ProductionInfoView WHERE titleId = ?
   `, 
   [req.params.titleId],
   (err, data) => {
@@ -263,7 +282,19 @@ const search_productions = async function(req, res) {
 
   const averageRatingLow = req.query.averageRatingLow ?? 0.0;
   const averageRatingHigh = req.query.averageRatingHigh ?? 10.0;
-
+  
+//   console.log([
+//     primaryTitle,
+//     isAdult,
+//     startYearLow,
+//     startYearHigh,
+//     runtimeMinutesLow,
+//     runtimeMinutesHigh,
+//     averageRatingLow,
+//     averageRatingHigh,
+//     genre,
+//     genreQuery
+//   ])
   /*
   SELECT p.titleId, primaryTitle, startYear, runtimeMinutes, averageRating
   FROM ${req.params.type} t JOIN Production p ON t.titleId = p.titleId JOIN Genres g ON t.titleId = g.titleId
@@ -298,9 +329,9 @@ const search_productions = async function(req, res) {
 
 const search_people = async function(req, res) {
   const primaryName = req.query.primaryName ?? '';
-  const birthYearLow = req.query.birthYearLow ?? 0;
+  const birthYearLow = req.query.birthYearLow ?? 1800;
   const birthYearHigh = req.query.birthYearHigh ?? 2023;
-  const deathYearLow = req.query.deathYearLow ?? 0;
+  const deathYearLow = req.query.deathYearLow ?? 1800;
   const deathYearHigh = req.query.deathYearHigh ?? 2023;
 
   const profession = req.query.profession;
@@ -395,6 +426,31 @@ const similarProductions = async function (req, res) {
         }
       });
 };
+
+// const similarProductions = async function (req, res) {
+//     const Query = `
+//       SELECT P.titleId, P.primaryTitle, P.isAdult, P.startYear, R.averageRating
+//       FROM SimilarProductView P
+//       JOIN ${req.params.productionType} T
+//       On P.titleId = T.titleId
+//       WHERE R.numVotes > 10000 AND genre IN (SELECT genre FROM Genres WHERE titleId = '${req.params.titleId}')
+//           AND startYear <= ${req.params.thisYear} + 10 AND startYear >= ${req.params.thisYear} - 10
+//           AND P.titleId <> '${req.params.titleId}'
+//       GROUP BY P.titleId, P.primaryTitle, P.isAdult, P.startYear, R.averageRating
+//       HAVING COUNT(genre) >= 2
+//       ORDER BY R.averageRating DESC
+//       LIMIT 10
+//     `;
+
+//     connection.query(Query,  (err, data) => {
+//       if (err || data.length === 0) {
+//         console.error(err);
+//         res.json([]);
+//       } else {
+//         res.json(data);
+//       }
+//     });
+// };
 
 
 module.exports = {
