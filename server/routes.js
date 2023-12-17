@@ -312,9 +312,9 @@ const search_productions = async function(req, res) {
 
 const search_people = async function(req, res) {
   const primaryName = req.query.primaryName ?? '';
-  const birthYearLow = req.query.birthYearLow ?? 0;
+  const birthYearLow = req.query.birthYearLow ?? 1800;
   const birthYearHigh = req.query.birthYearHigh ?? 2023;
-  const deathYearLow = req.query.deathYearLow ?? 0;
+  const deathYearLow = req.query.deathYearLow ?? 1800;
   const deathYearHigh = req.query.deathYearHigh ?? 2023;
 
   const profession = req.query.profession;

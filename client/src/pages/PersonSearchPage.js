@@ -10,8 +10,8 @@ export default function PersonSearchPage() {
   const [pageSize, setPageSize] = useState(25);
 
   const [primaryName, setPrimaryName] = useState('');
-  const [birthYear, setBirthYear] = useState([0, 2023]);
-  const [deathYear, setDeathYear] = useState([0, 2023]);
+  const [birthYear, setBirthYear] = useState([1800, 2023]);
+  const [deathYear, setDeathYear] = useState([1800, 2023]);
   const [profession, setProfession] = useState('All');
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function PersonSearchPage() {
           <p>Birth Year</p>
           <Slider style={{ color: 'black' }}
             value={birthYear}
-            min={0}
+            min={1800}
             max={2023}
             step={1}
             onChange={(e, newValue) => setBirthYear(newValue)}
@@ -84,7 +84,7 @@ export default function PersonSearchPage() {
           <p>Death Year</p>
           <Slider style={{ color: 'black' }}
             value={deathYear}
-            min={0}
+            min={1800}
             max={2023}
             step={1}
             onChange={(e, newValue) => setDeathYear(newValue)}
