@@ -14,7 +14,8 @@ const ProductionInfoPage = ({ type }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [similarProducts, setSimilarProducts] = useState([]);
-
+  const [personWithLink, setPersonWithLink] = useState(new Set());
+  
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -31,7 +32,18 @@ const ProductionInfoPage = ({ type }) => {
         const uniqueProductionData = Array.isArray(productionJson)
           ? Array.from(new Set(productionJson.map(prod => prod.personName)))
               .map(personName => productionJson.find(prod => prod.personName === personName))
-          : [];
+          : null;
+        const personSetWithLink = new Set();
+        
+        Promise.all(uniqueProductionData.map(p => new Promise(async (resolve) => {
+            const personRes = await fetch(`http://${config.server_host}:${config.server_port}/personInfo/${p.personId}`)
+                .then(res => res.json());
+            if(Array.isArray(personRes) && personRes.length !== 0){
+                personSetWithLink.add(p.personId); 
+            }
+            resolve()
+        }))).then(() =>  {setPersonWithLink(personSetWithLink);});
+       
 
         setProductionData(uniqueProductionData);
       } catch (error) {
@@ -71,7 +83,7 @@ const ProductionInfoPage = ({ type }) => {
     <Container>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error.message}</p>}
-      {!loading && !error && productionData.length > 0 && (
+      {!loading && !error && productionData !== null && productionData.length > 0 && (
         <Stack direction='row' justify='center'>
           <div>
             <h1 style={{ fontSize: 64 }}>{productionData[0].primaryTitle}</h1>
@@ -86,7 +98,8 @@ const ProductionInfoPage = ({ type }) => {
                 component='li'
                 variant='subtitle1'
               >
-                <Link to={`/person_info/${prod.personId}`}>{prod.personName}</Link>
+                {personWithLink.has(prod.personId) ? <Link to={`/person_info/${prod.personId}`}>{prod.personName}</Link>
+                 : prod.personName}
                 {': ' + prod.role}
               </p>
             ))}
@@ -102,6 +115,9 @@ const ProductionInfoPage = ({ type }) => {
             )}
           </div>
         </Stack>
+      )}
+      {!loading && !error && productionData === null && (
+        <p>Production Info currently not available.</p>
       )}
     </Container>
   );
