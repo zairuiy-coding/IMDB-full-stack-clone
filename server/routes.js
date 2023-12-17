@@ -181,7 +181,7 @@ const search_productions = async function(req, res) {
   const startYearLow = req.query.startYearLow ?? 0;
   const startYearHigh = req.query.startYearHigh ?? 2050;
   const runtimeMinutesLow = req.query.runtimeMinutesLow ?? 0;
-  const runtimeMinutesHigh = req.query.runtimeMinutesHigh ?? 55000;
+  const runtimeMinutesHigh = req.query.runtimeMinutesHigh ?? 5600;
 
   const genre = req.query.genre;
   const genreQuery = (genre === 'All' || (!genre)) ? '' : ` AND genre = '${genre}'`;
@@ -218,18 +218,14 @@ const search_productions = async function(req, res) {
         runtimeMinutes BETWEEN ${runtimeMinutesLow} AND ${runtimeMinutesHigh} AND
         averageRating BETWEEN ${averageRatingLow} AND ${averageRatingHigh}${genreQuery}
     ORDER BY primaryTitle;
-    `,
-    (err, data) => {
-        if (err || data.length === 0) {
-          console.log(err);
-          res.json({});
-        } else {
-          res.json(
-            data
-          );
-        }
-      }
-  );
+  `, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.json([]);
+    } else {
+      res.json(data);
+    }
+  });
 };
 
 
