@@ -1,9 +1,9 @@
 {
-    "rds_host": "cis5500-project.chj10nucq9su.us-east-1.rds.amazonaws.com",
+    "rds_host": "imdb-project.cmpbao0g9fpj.us-east-1.rds.amazonaws.com",
     "rds_port": "3306",
-    "rds_user": "Wen",
-    "rds_password": "JiangWen352761",
-    "rds_db": "cis5500_project_db",
+    "rds_user": "admin",
+    "rds_password": "SecurePassword123",
+    "rds_db": "imdb-project",
     "server_host": "localhost",
     "server_port": "8080"
 }
