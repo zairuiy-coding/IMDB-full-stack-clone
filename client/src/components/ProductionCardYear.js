@@ -27,7 +27,7 @@ function ProductionCardYear({ year, type, num}) {
         setLoading(true);
         setTop20([]);
         typeRef.current = type;
-        fetch(`http://${config.server_host}:${config.server_port}/top20ForYear/${year}/${type}`)
+        fetch(`https://${config.server_host}:${config.server_port}/top20ForYear/${year}/${type}`)
             .then(res => res.json())
             .then(resJson => {if(typeRef.current === type)  setTop20(resJson)})
             .catch(error => setError(error))

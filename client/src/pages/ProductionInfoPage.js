@@ -22,7 +22,7 @@ const ProductionInfoPage = ({ type }) => {
       setError(null);
 
       try {
-        const productionRes = await fetch(`http://${config.server_host}:${config.server_port}/productionInfo/${titleId}`);
+        const productionRes = await fetch(`https://${config.server_host}:${config.server_port}/productionInfo/${titleId}`);
         const productionJson = await productionRes.json();
 
         const year = productionJson.length > 0 ? productionJson[0].startYear : null;
@@ -36,7 +36,7 @@ const ProductionInfoPage = ({ type }) => {
         const personSetWithLink = new Set();
         
         Promise.all(uniqueProductionData.map(p => new Promise(async (resolve) => {
-            const personRes = await fetch(`http://${config.server_host}:${config.server_port}/personInfo/${p.personId}`)
+            const personRes = await fetch(`https://${config.server_host}:${config.server_port}/personInfo/${p.personId}`)
                 .then(res => res.json());
             if(Array.isArray(personRes) && personRes.length !== 0){
                 personSetWithLink.add(p.personId); 
@@ -59,7 +59,7 @@ const ProductionInfoPage = ({ type }) => {
   useEffect(() => {
     const fetchSimilarProducts = async () => {
       try {
-        const similarRes = await fetch(`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`);
+        const similarRes = await fetch(`https://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`);
         const similarJson = await similarRes.json();
         setSimilarProducts(similarJson);
       } catch (error) {
@@ -106,7 +106,7 @@ const ProductionInfoPage = ({ type }) => {
             <h2>Similar Product Recommendation:</h2>
             {similarProducts.length > 0 ? (
               <SimpleTable
-                route={`http://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`}
+                route={`https://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`}
                 columns={tableColumns}
                 filter={(simProd) => simProd.titleId !== titleId && simProd.primaryTitle !== productionData[0].primaryTitle}
               />

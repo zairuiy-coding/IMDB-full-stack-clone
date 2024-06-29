@@ -19,7 +19,7 @@ export default function ProductionSearchPage({ type }) {
   const [averageRating, setAverageRating] = useState([0, 10]);
 
   useEffect(() => {
-    fetch(`http://${config.server_host}:${config.server_port}/search_productions/${type}`)
+    fetch(`https://${config.server_host}:${config.server_port}/search_productions/${type}`)
       .then(res => res.json())
       .then(resJson => {
         const productionsWithId = resJson.map((production) => ({ id: production.titleId, ...production }));
@@ -28,7 +28,7 @@ export default function ProductionSearchPage({ type }) {
   }, [type]);
 
   const search = () => {
-    fetch(`http://${config.server_host}:${config.server_port}/search_productions/${type}?primaryTitle=${primaryTitle}` +
+    fetch(`https://${config.server_host}:${config.server_port}/search_productions/${type}?primaryTitle=${primaryTitle}` +
       `&isAdult=${isAdult}&startYearLow=${startYear[0]}&startYearHigh=${startYear[1]}&runtimeMinutesLow=${runtimeMinutes[0]}` +
       `&runtimeMinutesHigh=${runtimeMinutes[1]}&genre=${genre}&averageRatingLow=${averageRating[0]}` +
       `&averageRatingHigh=${averageRating[1]}`

@@ -47,7 +47,7 @@ export default function HomePage({ type }) {
         setTop250([]);
         //window.location.reload(false);
         typeRef.current = type;
-        fetch(`http://${config.server_host}:${config.server_port}/topProduction/${type}`)
+        fetch(`https://${config.server_host}:${config.server_port}/topProduction/${type}`)
             .then(res => res.json())
             .then(resJson => {if(typeRef.current === type)  setTop250(resJson)})
             .catch(error => setError(error))

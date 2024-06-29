@@ -16,7 +16,7 @@ export default function PersonSearchPage() {
   const [profession, setProfession] = useState('All');
 
   useEffect(() => {
-    fetch(`http://${config.server_host}:${config.server_port}/search_people`)
+    fetch(`https://${config.server_host}:${config.server_port}/search_people`)
       .then(res => res.json())
       .then(resJson => {
         const peopleWithId = resJson.map((person) => ({ id: person.personId, ...person }));
@@ -25,7 +25,7 @@ export default function PersonSearchPage() {
   }, []);
 
   const search = () => {
-    fetch(`http://${config.server_host}:${config.server_port}/search_people?primaryName=${primaryName}&birthYearLow=${birthYear[0]}` +
+    fetch(`https://${config.server_host}:${config.server_port}/search_people?primaryName=${primaryName}&birthYearLow=${birthYear[0]}` +
       `&birthYearHigh=${birthYear[1]}&deathYearLow=${deathYear[0]}&deathYearHigh=${deathYear[1]}&profession=${profession}`
     )
       .then(res => res.json())

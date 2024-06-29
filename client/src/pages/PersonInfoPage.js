@@ -19,7 +19,7 @@ export default function PersonInfoPage() {
       setLoading(true);
       setError(null);
       try {
-        const personRes = await fetch(`http://${config.server_host}:${config.server_port}/personInfo/${personId}`);
+        const personRes = await fetch(`https://${config.server_host}:${config.server_port}/personInfo/${personId}`);
         const personJson = await personRes.json();
         setPersonData(personJson);
 
@@ -55,7 +55,7 @@ export default function PersonInfoPage() {
               </p>
             ))} */}
             <SimpleTable
-                route={`http://${config.server_host}:${config.server_port}/personInfo/${personId}`}
+                route={`https://${config.server_host}:${config.server_port}/personInfo/${personId}`}
                 columns={[
                   { field:'primaryTitle', headerName: 'Product Title' },
                   { field:'profession', headerName: 'Profession' },

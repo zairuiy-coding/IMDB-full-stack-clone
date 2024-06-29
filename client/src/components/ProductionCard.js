@@ -27,7 +27,7 @@ function ProductionCard({ genre, type, num}) {
         setLoading(true);
         setTop20([]);
         typeRef.current = type;
-        fetch(`http://${config.server_host}:${config.server_port}/top20ForGenre/${genre}/${type}`)
+        fetch(`https://${config.server_host}:${config.server_port}/top20ForGenre/${genre}/${type}`)
             .then(res => res.json())
             .then(resJson => {if(typeRef.current === type) setTop20(resJson)})
             .catch(error => setError(error))
