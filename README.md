@@ -60,9 +60,9 @@ Given the large dataset with millions of entries, loading times were initially q
 
 1. **Creating Views:** To optimize query performance, we created views to store the results of joined tables. Since MySQL does not support materialized views, we created tables in the database to cache the join results. This strategy significantly reduced the time spent on multiple joins, leading to faster data retrieval and improved application performance.
 
-2. **Creating Indexes:** We created indexes on the columns that are fruently used in the WHERE and ORDER BY conditions of our queries. This indexing strategy helped to speed up the search operations and sorting, making the data retrieval process much more efficient.
+2. **Creating Indexes:** We created indexes on the columns frequently used in the WHERE and ORDER BY conditions of our queries. This indexing strategy helped to speed up search operations and sorting, making the data retrieval process much more efficient.
 
-These strategies have helped boost performance and reduce load time by over 60%, reducing the load time of some pages from over 15s to under 5s.
+These strategies have helped boost performance and reduce load time by over 60%, decreasing the load time of some pages from over 15 seconds to under 5 seconds.
 
 ## 📘 References and Credits
 
@@ -79,5 +79,4 @@ These strategies have helped boost performance and reduce load time by over 60%,
 - 👩‍💻 **Yihan Zhu** [@YihanIreneZhu](https://github.com/YihanIreneZhu)
 
 ---
-
-Thank you for using PMDB. Explore, discover, and enjoy the world of movies and TV series! 📽️
+Start exploring PMDB today and uncover the best in the world of movies and TV series! 📽️🌟
