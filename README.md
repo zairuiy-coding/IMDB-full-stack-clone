@@ -2,6 +2,8 @@
 
 [Live Link](https://imdb-full-stack-clone.netlify.app)
 
+![imdb_cover](imdb_cover.png)
+
 Welcome to PMDB, a one-stop destination for all things related to art production in the world of movies, shorts, TV series, and beyond.
 
 Whether you are a filmmaker, a TV enthusiast, or simply an art aficionado, PMDB offers a comprehensive platform for discovering, exploring, and recommending the finest works of art productions.
@@ -34,7 +36,7 @@ The database design of PMDB is meticulously crafted to handle extensive data rel
 
 ![ER Diagram](ER_diagram.png)
 
-The database is designed to be in Third Normal Form (3NF) and Boyce-Codd Normal Form (BCNF) to minimize redundancy and improve data integrity. Here's an overview of the structure:
+The database is designed to be in **Third Normal Form (3NF)** and **Boyce-Codd Normal Form (BCNF)** to minimize redundancy and improve data integrity. Here's an overview of the structure:
 
 - **Production:** Contains details about movies, TV series, and shorts, including attributes like `titleId`, `primaryTitle`, `isAdult`, `startYear`, `runtimeMinutes`, `averageRating`, and `numVotes`.
 - **Person:** Contains details about individuals involved in productions, including attributes like `personId`, `primaryName`, `birthYear`, and `deathYear`.
@@ -58,15 +60,9 @@ Given the large dataset with millions of entries, loading times were initially q
 
 1. **Creating Views:** To optimize query performance, we created views to store the results of joined tables. Since MySQL does not support materialized views, we created tables in the database to cache the join results. This strategy significantly reduced the time spent on multiple joins, leading to faster data retrieval and improved application performance.
 
-2. **Creating Indexes:** We created indexes on the columns used in the WHERE and ORDER BY conditions of our queries. This indexing strategy helped to speed up the search operations and sorting, making the data retrieval process much more efficient.
+2. **Creating Indexes:** We created indexes on the columns that are fruently used in the WHERE and ORDER BY conditions of our queries. This indexing strategy helped to speed up the search operations and sorting, making the data retrieval process much more efficient.
 
-## 🌟 Recommendation Engine
-
-### How It Works:
-- **Top Productions:** Displays the top 250 productions based on average ratings.
-- **Production Search:** Allows users to search for productions based on various criteria.
-- **Person Search:** Allows users to search for individuals involved in productions.
-- **Similar Productions:** Recommends productions similar to the selected title.
+These strategies have helped boost performance and reduce load time by over 60%, reducing the load time of some pages from over 15s to under 5s.
 
 ## 📘 References and Credits
 
