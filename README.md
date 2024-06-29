@@ -1,4 +1,3 @@
 # IMDB full-stack clone
+live link: https://imdb-full-stack-clone.netlify.app
 
-Connectinng to the Database: 
-connecting to the MySQL database using credentials listed in config.json.
