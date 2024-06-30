@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { Button, Container, Grid, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import Typography from '@mui/material/Typography';
-
 import { NavLink } from 'react-router-dom';
 const config = require('../config.json');
 
 export default function PersonSearchPage() {
   const [data, setData] = useState([]);
   const [pageSize, setPageSize] = useState(25);
+  const [loading, setLoading] = useState(true);
 
   const [primaryName, setPrimaryName] = useState('');
   const [birthYear, setBirthYear] = useState([1800, 2013]);
@@ -16,15 +16,18 @@ export default function PersonSearchPage() {
   const [profession, setProfession] = useState('All');
 
   useEffect(() => {
+    setLoading(true);
     fetch(`https://${config.server_host}:${config.server_port}/search_people`)
       .then(res => res.json())
       .then(resJson => {
         const peopleWithId = resJson.map((person) => ({ id: person.personId, ...person }));
         setData(peopleWithId);
+        setLoading(false);
       });
   }, []);
 
   const search = () => {
+    setLoading(true);
     fetch(`https://${config.server_host}:${config.server_port}/search_people?primaryName=${primaryName}&birthYearLow=${birthYear[0]}` +
       `&birthYearHigh=${birthYear[1]}&deathYearLow=${deathYear[0]}&deathYearHigh=${deathYear[1]}&profession=${profession}`
     )
@@ -32,10 +35,10 @@ export default function PersonSearchPage() {
       .then(resJson => {
         const peopleWithId = resJson.map((person) => ({ id: person.personId, ...person }));
         setData(peopleWithId);
+        setLoading(false);
       });
   };
 
-  // This defines the columns of the table of productions. We use the DataGrid component for the table.
   const columns = [
     { field: 'primaryName', headerName: 'Name', width: 360, renderCell: (params) => (
         <NavLink to={`/person_info/${params.row.personId}`}>{params.value}</NavLink>
@@ -51,16 +54,61 @@ export default function PersonSearchPage() {
     'make_up_department', 'manager', 'miscellaneous', 'music_artist', 'music_department', 'podcaster', 'producer', 'production_designer',
     'production_manager', 'publicist', 'script_department', 'set_decorator', 'sound_department', 'soundtrack', 'special_effects', 'stunts',
     'talent_agent', 'transportation_department', 'visual_effects', 'writer'];
-  
+
+  const rangeInputStyle = `
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: gray;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: gray;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+    input[type="range"]::-ms-thumb {
+      width: 20px;
+      height: 20px;
+      background: gray;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+  `;
+
+  const getRowClassName = (params) => {
+    if (params.index === 0) {
+      return 'bold-row';
+    }
+    return '';
+  };
+
   return (
     <Container>
-      <h2>Search People</h2>
+      <style>
+        {rangeInputStyle}
+        {`
+          .bold-row {
+            font-weight: bold;
+          }
+        `}
+      </style>
+      <h2 style={{ textAlign: 'center', fontSize: '32px', marginBottom: '20px' }}>Search People</h2>
       <Grid container spacing={6}>
         <Grid item xs={6}>
-          <TextField label='Name' value={primaryName} onChange={(e) => setPrimaryName(e.target.value)} style={{ width: "100%" }} />
+          <TextField 
+            label='Name' 
+            value={primaryName} 
+            onChange={(e) => setPrimaryName(e.target.value)} 
+            style={{ width: "100%", border: '1px solid #ccc', borderRadius: '4px', marginBottom: '20px' }} 
+          />
         </Grid>
         <Grid item xs={6}>
-          <FormControl style={{ width: '100%' }}>
+          <FormControl style={{ width: '100%', marginBottom: '20px' }}>
             <InputLabel id='profession_label'>Profession</InputLabel>
             <Select labelId='profession_label' label='Profession' value={profession} onChange={(e) => setProfession(e.target.value)}>
               {professions.map((profession) => (
@@ -69,28 +117,6 @@ export default function PersonSearchPage() {
             </Select>
           </FormControl>
         </Grid>
-        {/* <Grid item xs={6}>
-          <p>Birth Year</p>
-          <Slider style={{ color: 'black' }}
-            value={birthYear}
-            min={1500}
-            max={2013}
-            step={1}
-            onChange={(e, newValue) => setBirthYear(newValue)}
-            valueLabelDisplay='auto' 
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <p>Death Year</p>
-          <Slider style={{ color: 'black' }}
-            value={deathYear}
-            min={1500}
-            max={2023}
-            step={1}
-            onChange={(e, newValue) => setDeathYear(newValue)}
-            valueLabelDisplay='auto' 
-          />
-        </Grid> */}
         <Grid item xs={6}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ backgroundColor: 'gray', padding: '8px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -160,22 +186,33 @@ export default function PersonSearchPage() {
           left: '50%',
           transform: 'translateX(-50%)',
           fontWeight: 'bold',
-          marginTop: '60px',
-          marginBottom: '200px',
-          fontSize: '20px', // Adjust the font size as needed
-          padding: '15px 80px' // Adjust the padding as needed
-        }}>
+          marginTop: '40px',
+          marginBottom: '60px',
+          fontSize: '20px',
+          padding: '15px 80px',
+        }}
+      >
         Search
       </Button>
-      <h2>People</h2>
-      <DataGrid
-        rows={data}
-        columns={columns}
-        pageSize={pageSize}
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-        autoHeight 
-      />
+      <h2 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '28px' }}>People YOU LOOK FOR</h2>
+      <div style={{ marginBottom: '40px' }}>
+        <DataGrid
+          rows={loading ? [] : data}
+          columns={columns}
+          pageSize={pageSize}
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+          autoHeight 
+          getRowClassName={getRowClassName}
+          components={{
+            NoRowsOverlay: () => (
+              <div style={{ padding: '10px', textAlign: 'center' }}>
+                {loading ? "Loading..." : "No rows"}
+              </div>
+            )
+          }}
+        />
+      </div>
     </Container>
   );
-};
+}
