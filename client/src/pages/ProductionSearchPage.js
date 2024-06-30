@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Button, Checkbox, Container, FormControlLabel, Grid, TextField, FormControl, InputLabel, Select, MenuItem } from 
-  '@mui/material';
+import { Button, Checkbox, Container, FormControlLabel, Grid, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import Typography from '@mui/material/Typography';
-
 import { NavLink } from 'react-router-dom';
 const config = require('../config.json');
 
 export default function ProductionSearchPage({ type }) {
   const [data, setData] = useState([]);
   const [pageSize, setPageSize] = useState(25);
+  const [loading, setLoading] = useState(true);  // New state for loading
 
   const [primaryTitle, setPrimaryTitle] = useState('');
   const [isAdult, setIsAdult] = useState(false);
@@ -19,15 +18,18 @@ export default function ProductionSearchPage({ type }) {
   const [averageRating, setAverageRating] = useState([0, 10]);
 
   useEffect(() => {
+    setLoading(true);
     fetch(`https://${config.server_host}:${config.server_port}/search_productions/${type}`)
       .then(res => res.json())
       .then(resJson => {
         const productionsWithId = resJson.map((production) => ({ id: production.titleId, ...production }));
         setData(productionsWithId);
+        setLoading(false);
       });
   }, [type]);
 
   const search = () => {
+    setLoading(true);
     fetch(`https://${config.server_host}:${config.server_port}/search_productions/${type}?primaryTitle=${primaryTitle}` +
       `&isAdult=${isAdult}&startYearLow=${startYear[0]}&startYearHigh=${startYear[1]}&runtimeMinutesLow=${runtimeMinutes[0]}` +
       `&runtimeMinutesHigh=${runtimeMinutes[1]}&genre=${genre}&averageRatingLow=${averageRating[0]}` +
@@ -37,10 +39,10 @@ export default function ProductionSearchPage({ type }) {
       .then(resJson => {
         const productionsWithId = resJson.map((production) => ({ id: production.titleId, ...production }));
         setData(productionsWithId);
+        setLoading(false);
       });
   };
 
-  // This defines the columns of the table of productions. We use the DataGrid component for the table.
   const columns = [
     { field: 'primaryTitle', headerName: 'Title', width: 490, renderCell: (params) => (
         <NavLink to={`/production_info/${params.row.titleId}`}>{params.value}</NavLink>
@@ -59,24 +61,18 @@ export default function ProductionSearchPage({ type }) {
     typeDisplayed = 'Movies';
     releaseYear = [1900, 2023];
     runtime = [0, 1000];
-    // ryWidth = 4;
-    // rtWidth = 6;
     ryWidth = 4;
     rtWidth = 4;
   } else if (type === 'Short') {
     typeDisplayed = 'Shorts';
     releaseYear = [1900, 2023];
     runtime = [0, 110];
-    // ryWidth = 5;
-    // rtWidth = 4;
     ryWidth = 4;
     rtWidth = 4;
   } else {
     typeDisplayed = 'TV Series';
     releaseYear = [1930, 2023];
     runtime = [0, 5300];
-    // ryWidth = 3;
-    // rtWidth = 7;
     ryWidth = 4;
     rtWidth = 4;
   }
@@ -84,18 +80,63 @@ export default function ProductionSearchPage({ type }) {
   const genres = ['All', 'Documentary', 'Short', 'Animation', 'Comedy', 'Romance', 'Sport', 'News', 'Drama', 'Fantasy', 'Horror', 
     'Biography', 'Music', 'War', 'Crime', 'Western', 'Family', 'Adventure', 'Action', 'History', 'Mystery', 'Sci-Fi', 'Musical', 
     'Thriller', 'Film-Noir', 'Talk-Show', 'Game-Show', 'Reality-TV', 'Adult'];
-  
+
+  const rangeInputStyle = `
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: gray;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: gray;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+    input[type="range"]::-ms-thumb {
+      width: 20px;
+      height: 20px;
+      background: gray;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+  `;
+
+  const getRowClassName = (params) => {
+    if (params.index === 0) {
+      return 'bold-row';
+    }
+    return '';
+  };
+
   return (
     <Container>
-      <h2>Search {typeDisplayed}</h2>
+      <style>
+        {rangeInputStyle}
+        {`
+          .bold-row {
+            font-weight: bold;
+          }
+        `}
+      </style>
+      <h2 style={{ textAlign: 'center', fontSize: '32px', marginBottom: '20px' }}>Search {typeDisplayed}</h2>
       <Grid container spacing={6}>
         <Grid item xs={6}>
-          <TextField label='Title' value={primaryTitle} onChange={(e) => setPrimaryTitle(e.target.value)} style={{ width: "100%" }} />
+          <TextField 
+            label='Title' 
+            value={primaryTitle} 
+            onChange={(e) => setPrimaryTitle(e.target.value)} 
+            style={{ width: "100%", border: '1px solid #ccc', borderRadius: '4px', marginBottom: '20px' }} 
+          />
         </Grid>
         <Grid item xs={4}>
-          <FormControl style={{ width: '100%' }}>
+          <FormControl style={{ width: '100%', marginBottom: '20px' }}>
             <InputLabel id='genre_label'>Genre</InputLabel>
-            <Select labelId='genre_label' label='Label' value={genre} onChange={(e) => setGenre(e.target.value)}>
+            <Select labelId='genre_label' label='Genre' value={genre} onChange={(e) => setGenre(e.target.value)}>
               {genres.map((genre) => (
                 <MenuItem key={genre} value={genre}>{genre}</MenuItem>
               ))}
@@ -106,41 +147,9 @@ export default function ProductionSearchPage({ type }) {
           <FormControlLabel
             label='Adult'
             control={<Checkbox checked={isAdult} onChange={(e) => setIsAdult(e.target.checked)} />} 
+            style={{ marginBottom: '20px' }}
           />
         </Grid>
-        {/* <Grid item xs={ryWidth}>
-          <p>Release Year</p>
-          <Slider style={{ color: 'black' }}
-            value={startYear}
-            min={releaseYear[0]}
-            max={releaseYear[1]}
-            step={1}
-            onChange={(e, newValue) => setStartYear(newValue)}
-            valueLabelDisplay='auto' 
-          />
-        </Grid>
-        <Grid item xs={rtWidth}>
-          <p>Runtime (mins)</p>
-          <Slider style={{ color: 'black' }}
-            value={runtimeMinutes}
-            min={runtime[0]}
-            max={runtime[1]}
-            step={1}
-            onChange={(e, newValue) => setRuntimeMinutes(newValue)}
-            valueLabelDisplay='auto' 
-          />
-        </Grid>
-        <Grid item xs={12-ryWidth-rtWidth}>
-          <p>Average Rating</p>
-          <Slider style={{ color: 'black' }}
-            value={averageRating}
-            min={0.0}
-            max={10.0}
-            step={0.1}
-            onChange={(e, newValue) => setAverageRating(newValue)}
-            valueLabelDisplay='auto' 
-          />
-        </Grid> */}
         <Grid item xs={ryWidth}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ backgroundColor: 'gray', padding: '8px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -232,12 +241,6 @@ export default function ProductionSearchPage({ type }) {
           </div>
         </Grid>
       </Grid>
-      {/* <Button
-        onClick={() => search()} 
-        style={{ backgroundColor: 'black', color: 'white', left: '50%', 
-        transform: 'translateX(-50%)', fontWeight: 'bold', marginTop: '25px' }}>
-          Search
-      </Button> */}
       <Button
         onClick={() => search()} 
         style={{ 
@@ -246,22 +249,33 @@ export default function ProductionSearchPage({ type }) {
           left: '50%',
           transform: 'translateX(-50%)',
           fontWeight: 'bold',
-          marginTop: '60px',
-          marginBottom: '200px',
-          fontSize: '20px', // Adjust the font size as needed
-          padding: '15px 80px' // Adjust the padding as needed
-        }}>
+          marginTop: '40px',
+          marginBottom: '60px',
+          fontSize: '20px',
+          padding: '15px 80px',
+        }}
+      >
         Search
       </Button>
-      <h2>{typeDisplayed} YOU WOULD LIKE</h2>
-      <DataGrid
-        rows={data}
-        columns={columns}
-        pageSize={pageSize}
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-        autoHeight 
-      />
+      <h2 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '28px' }}>{typeDisplayed} YOU WOULD LIKE</h2>
+      <div style={{ marginBottom: '40px' }}>
+        <DataGrid
+          rows={loading ? [] : data} // Show empty rows if loading
+          columns={columns}
+          pageSize={pageSize}
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+          autoHeight 
+          getRowClassName={getRowClassName}
+          components={{
+            NoRowsOverlay: () => (
+              <div style={{ padding: '10px', textAlign: 'center' }}>
+                {loading ? "Loading..." : "No rows"}
+              </div>
+            )
+          }}
+        />
+      </div>
     </Container>
   );
-};
+}
