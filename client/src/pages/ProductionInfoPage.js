@@ -15,7 +15,7 @@ const ProductionInfoPage = ({ type }) => {
   const [error, setError] = useState(null);
   const [similarProducts, setSimilarProducts] = useState([]);
   const [personWithLink, setPersonWithLink] = useState(new Set());
-  
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -28,23 +28,23 @@ const ProductionInfoPage = ({ type }) => {
         const year = productionJson.length > 0 ? productionJson[0].startYear : null;
         setThisYear(year);
 
-        // Filter unique "personName" values
         const uniqueProductionData = Array.isArray(productionJson)
           ? Array.from(new Set(productionJson.map(prod => prod.personName)))
               .map(personName => productionJson.find(prod => prod.personName === personName))
-          : null;
+          : [];
+
         const personSetWithLink = new Set();
-        
-        Promise.all(uniqueProductionData.map(p => new Promise(async (resolve) => {
+
+        await Promise.all(uniqueProductionData.map(p => new Promise(async (resolve) => {
             const personRes = await fetch(`https://${config.server_host}:${config.server_port}/personInfo/${p.personId}`)
                 .then(res => res.json());
-            if(Array.isArray(personRes) && personRes.length !== 0){
-                personSetWithLink.add(p.personId); 
+            if (Array.isArray(personRes) && personRes.length !== 0) {
+                personSetWithLink.add(p.personId);
             }
-            resolve()
-        }))).then(() =>  {setPersonWithLink(personSetWithLink);});
-       
+            resolve();
+        })));
 
+        setPersonWithLink(personSetWithLink);
         setProductionData(uniqueProductionData);
       } catch (error) {
         setError(error);
@@ -67,7 +67,6 @@ const ProductionInfoPage = ({ type }) => {
       }
     };
 
-    // Fetch similar products only when thisYear is available
     if (thisYear !== null) {
       fetchSimilarProducts();
     }
@@ -81,38 +80,87 @@ const ProductionInfoPage = ({ type }) => {
 
   return (
     <Container>
+      <style>
+        {`
+          .production-info-container {
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-left: 0;
+            margin-right: auto;
+            width: 100%;
+          }
+          .production-title {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #333;
+          }
+          .production-detail {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #666;
+          }
+          .production-principals, .production-similar {
+            margin-top: 40px;
+            margin-bottom: 20px;
+          }
+          .production-principals h2, .production-similar h2 {
+            font-size: 24px;
+            color: #333;
+          }
+          .production-principals p {
+            font-size: 16px;
+            color: #666;
+          }
+          .link {
+            color: #007bff;
+            text-decoration: none;
+          }
+          .link:hover {
+            text-decoration: underline;
+          }
+        `}
+      </style>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error.message}</p>}
       {!loading && !error && productionData !== null && productionData.length > 0 && (
-        <Stack direction='row' justify='center'>
-          <div>
-            <h1 style={{ fontSize: 64 }}>{productionData[0].primaryTitle}</h1>
-            <h2>Start Year: {productionData[0].startYear}</h2>
-            <p>Rating: {productionData[0].averageRating}</p>
-            <p>Duration: {productionData[0].runtimeMinutes}</p>
-            <p>Genres: {productionData[0].genre}</p>
-            <h2>Principals</h2>
-            {productionData.slice(0, 5).map((prod, index) => (
-              <p
-                key={prod.personName + ': ' + prod.role}
-                component='li'
-                variant='subtitle1'
-              >
-                {personWithLink.has(prod.personId) ? <Link to={`/person_info/${prod.personId}`}>{prod.personName}</Link>
-                 : prod.personName}
-                {': ' + prod.role}
-              </p>
-            ))}
-            <h2>Similar Product Recommendation:</h2>
-            {similarProducts.length > 0 ? (
-              <SimpleTable
-                route={`https://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`}
-                columns={tableColumns}
-                filter={(simProd) => simProd.titleId !== titleId && simProd.primaryTitle !== productionData[0].primaryTitle}
-              />
-            ) : (
-              <p>No similar products found.</p>
-            )}
+        <Stack direction='row' justifyContent='flex-start'>
+          <div className="production-info-container">
+            <h1 className="production-title">{productionData[0].primaryTitle}</h1>
+            <p className="production-detail">Start Year: {productionData[0].startYear}</p>
+            <p className="production-detail">Rating: {productionData[0].averageRating}</p>
+            <p className="production-detail">Duration: {productionData[0].runtimeMinutes}</p>
+            <p className="production-detail">Genres: {productionData[0].genre}</p>
+            <div className="production-principals">
+              <h2>Principals</h2>
+              {productionData.length > 0 ? (
+                productionData.slice(0, 5).map((prod, index) => (
+                  <p key={prod.personName + ': ' + prod.role} component='li' variant='subtitle1'>
+                    {personWithLink.has(prod.personId) ? (
+                      <Link to={`/person_info/${prod.personId}`} className="link">{prod.personName}</Link>
+                    ) : (
+                      prod.personName
+                    )}
+                    {prod.role ? `: ${prod.role}` : ''}
+                  </p>
+                ))
+              ) : (
+                <p>No data available</p>
+              )}
+            </div>
+            <div className="production-similar">
+              <h2>Similar Product Recommendation:</h2>
+              {similarProducts.length > 0 ? (
+                <SimpleTable
+                  route={`https://${config.server_host}:${config.server_port}/similarProductions/${titleId}/${type}/${thisYear}`}
+                  columns={tableColumns}
+                  filter={(simProd) => simProd.titleId !== titleId && simProd.primaryTitle !== productionData[0].primaryTitle}
+                />
+              ) : (
+                <p>No data available</p>
+              )}
+            </div>
           </div>
         </Stack>
       )}
