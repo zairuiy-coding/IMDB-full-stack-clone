@@ -1,6 +1,6 @@
 # IMDB full-stack clone - PMDB 🎥🎬✨
 
-[Live Link](https://imdb-full-stack-clone.netlify.app)
+[![Live](https://img.shields.io/badge/Live-Demo-green)](https://imdb-full-stack-clone.netlify.app)
 
 ![imdb_cover](imdb_cover.png)
 
